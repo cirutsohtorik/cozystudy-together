@@ -32,17 +32,22 @@ const UI = {
   renderAvatarPreviews() {
     ['Can', 'Sezen'].forEach(name => {
       const canvas = document.getElementById(`preview-${name.toLowerCase()}`);
-      if (canvas && Sprites.cache && Sprites.cache[name]) {
+      if (canvas && Sprites.cache) {
         const ctx = canvas.getContext('2d');
         ctx.imageSmoothingEnabled = false;
         ctx.clearRect(0, 0, 64, 64);
-        const sprite = Sprites.cache[name]['down']?.[0];
-        if (sprite) {
-          const isLPC = sprite.width === 32;
-          if (isLPC) {
-            ctx.drawImage(sprite, 8, 4, 48, 56);
-          } else {
-            ctx.drawImage(sprite, 8, 0, 48, 64);
+        const portrait = Sprites.cache['portrait_' + name];
+        if (portrait) {
+          ctx.drawImage(portrait, 0, 0, 64, 64);
+        } else {
+          const sprite = Sprites.cache[name]?.['down']?.[0];
+          if (sprite) {
+            const isLPC = sprite.width === 32;
+            if (isLPC) {
+              ctx.drawImage(sprite, 8, 4, 48, 56);
+            } else {
+              ctx.drawImage(sprite, 8, 0, 48, 64);
+            }
           }
         }
       }
@@ -77,7 +82,7 @@ const UI = {
       const myAvatarBox = document.getElementById('hud-my-avatar');
       const myPortraitImg = document.getElementById('hud-my-portrait-img');
       if (myAvatarBox && myPortraitImg) {
-        myPortraitImg.src = p.name === 'Can' ? 'assets/can_portrait.jpg' : 'assets/sezen_portrait.jpg';
+        myPortraitImg.src = Sprites.getPortraitDataUrl(p.name);
         myAvatarBox.style.display = 'flex';
       }
     }
@@ -127,7 +132,7 @@ const UI = {
 
     if (partner) {
       if (partnerImg) {
-        partnerImg.src = partnerName === 'Can' ? 'assets/can_portrait.jpg' : 'assets/sezen_portrait.jpg';
+        partnerImg.src = Sprites.getPortraitDataUrl(partnerName);
         partnerImg.style.display = 'inline-block';
       }
       if (partner.isSitting) {
@@ -211,22 +216,15 @@ const UI = {
     if (el) el.classList.add('hidden');
   },
 
-  // Çalışma Modalı
   openStudyModal(table) {
     this.currentTableNear = table;
     const modal = document.getElementById('study-modal');
-    const bannerImg = document.getElementById('study-modal-banner-img');
-    if (bannerImg) {
-      if (Game.currentRoom === 'classroom') {
-        bannerImg.src = 'assets/cozy_classroom_library.jpg';
-        bannerImg.alt = 'Sınıf & Kütüphane Masası';
-      } else if (Game.currentRoom === 'cafe') {
-        bannerImg.src = 'assets/cozy_coffee_bar.jpg';
-        bannerImg.alt = 'Cozy Kafe Masası';
-      } else {
-        bannerImg.src = 'assets/cozy_garden_gazebo.jpg';
-        bannerImg.alt = 'Bahçe Çardağı';
-      }
+    const badgeEl = document.getElementById('study-modal-room-badge');
+    if (badgeEl) {
+      const roomIcons = { classroom: '🏫 Sınıf & Kütüphane', cafe: '☕ Cozy Kafe', garden: '🌸 Bahçe Çardağı' };
+      const roomLabel = roomIcons[Game.currentRoom] || '🏡 Çalışma Alanı';
+      const tableName = table?.name ? ` • ${table.name}` : '';
+      badgeEl.textContent = `${roomLabel}${tableName}`;
     }
 
     modal.classList.remove('hidden');
@@ -340,7 +338,7 @@ const UI = {
     if (miniTopicEl) miniTopicEl.textContent = topicText;
 
     if (thumbImg && Network.localPlayer) {
-      thumbImg.src = Network.localPlayer.name === 'Can' ? 'assets/can_portrait.jpg' : 'assets/sezen_portrait.jpg';
+      thumbImg.src = Sprites.getPortraitDataUrl(Network.localPlayer.name);
     }
     if (hud) hud.classList.remove('hidden');
 

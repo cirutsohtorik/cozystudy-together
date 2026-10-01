@@ -8,12 +8,20 @@
     "dev": "node server.js",
     "share": "npx localtunnel --port 3000"
   },
-  "keywords": ["game", "multiplayer", "pixel-art", "study", "pomodoro", "stardew-valley"],
+  "keywords": [
+    "game",
+    "multiplayer",
+    "pixel-art",
+    "study",
+    "pomodoro",
+    "stardew-valley"
+  ],
   "author": "Can & Sezen",
   "license": "MIT",
   "dependencies": {
     "express": "^4.21.2",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.4"
   },
   "devDependencies": {
     "localtunnel": "^2.0.2"

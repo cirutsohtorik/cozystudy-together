@@ -16,6 +16,7 @@ const Sprites = {
     this.createDecorSprites();
     this.createHugSprite();
     this.createNPCSprites();
+    this.createPortraitSprites();
     if (typeof AssetLoader !== 'undefined') {
       AssetLoader.init();
     }
@@ -509,21 +510,26 @@ const Sprites = {
       px(84, 30, '#211006', 6, 12);
       px(4, 34, '#4a2811', 88, 6);
 
-      // Ortada Piknik Sepeti (Kareli Kumaş)
-      px(40, 11, '#8c532b', 16, 10);
-      px(42, 9, '#c0392b', 12, 4);   // Kırmızı örtü ucu
+      // Ortada Piknik Sepeti & Çiçek Aranjmanı (Can ve Sezen'in tam ortasında, x: 40-56)
+      px(40, 14, '#8c532b', 16, 9);
+      px(42, 12, '#c0392b', 12, 3);   // Kırmızı ekose örtü ucu
 
-      // Sol (Ön Taraf): Taze Naneli Soğuk Limonata Sürahisi
-      px(16, 18, '#d4f1f4', 8, 9);
-      px(17, 19, '#f9e79f', 6, 7);   // Sarı limonata
-      px(19, 20, '#27ae60', 2, 2);   // Nane yaprağı
+      // Ortada Minik Çiçek Vazosu (Sepetin yanında x: 44-52, kafaları ASLA kapatmaz)
+      px(44, 18, '#eaecee', 8, 6);
+      px(45, 19, '#ffffff', 2, 2);
+      px(46, 15, '#2ecc71', 4, 3);   // Saplar
+      px(43, 13, '#ffd166', 3, 3);   // Papatya
+      px(49, 13, '#9b5de5', 3, 3);   // Lavanta
 
-      // Sağ (Masanın Diğer Tarafı): Çiçek Vazosu (Papatyalar ve Lavantalar - Kafayı kapatmaz)
-      px(74, 20, '#eaecee', 8, 7);
-      px(75, 21, '#ffffff', 2, 2);
-      px(76, 17, '#2ecc71', 4, 3);   // Saplar
-      px(73, 15, '#ffd166', 3, 3);   // Papatya
-      px(79, 15, '#9b5de5', 3, 3);   // Lavanta
+      // Sol (Can'ın Önü): Taze Naneli Soğuk Limonata Bardağı
+      px(16, 19, '#d4f1f4', 7, 8);
+      px(17, 20, '#f9e79f', 5, 6);   // Sarı limonata
+      px(18, 21, '#27ae60', 2, 2);   // Nane yaprağı
+
+      // Sağ (Sezen'in Önü): Minik Çilekli Tart & Fincan (Masa üzerinde alçak, asla kapatmaz)
+      px(72, 22, '#ffffff', 8, 3);   // Minik tabak
+      px(74, 20, '#e76f51', 4, 3);   // Çilek
+      px(73, 21, '#f4a261', 6, 2);   // Tart hamuru
     });
 
     // 6. ÇİFT MASASI - Kafe Romantik Locası (96x44 Bistro Ekose Örtü & Kruvasanlar)
@@ -1004,6 +1010,247 @@ const Sprites = {
       px(ctx, 17, 6, '#7209b7', 3, 6);
       px(ctx, 6, 2, '#480ca8', 12, 2);
     });
+  },
+
+  // ========================================================
+  // 9. Stardew Valley Tarzı Yakın Plan Piksel Portreleri (64x64)
+  // Can (Sıcak Esmer Ten, Espresso Saç) & Sezen (Duru Beyaz Ten, Mavi-Siyah Saç, Mercan Toka)
+  // ========================================================
+  createPortraitSprites() {
+    ['Can', 'Sezen'].forEach(name => {
+      this.cache['portrait_' + name] = this.createPixelCanvas(64, 64, (ctx) => {
+        this.renderStardewPortrait(ctx, name);
+      });
+    });
+  },
+
+  getPortraitDataUrl(name) {
+    if (!name) return '';
+    const canvas = this.cache['portrait_' + name];
+    if (canvas && canvas.toDataURL) {
+      return canvas.toDataURL();
+    }
+    return '';
+  },
+
+  renderStardewPortrait(ctx, name) {
+    const px = (x, y, color, w = 1, h = 1) => this.px(ctx, x, y, color, w, h);
+    const isCan = name === 'Can';
+
+    // 1. Dış Ahşap Stardew Çerçevesi
+    ctx.fillStyle = '#221208';
+    ctx.fillRect(0, 0, 64, 64);
+    ctx.fillStyle = '#633617';
+    ctx.fillRect(2, 2, 60, 60);
+    ctx.fillStyle = '#945627';
+    ctx.fillRect(3, 3, 58, 58);
+    ctx.fillStyle = '#3a1e0c';
+    ctx.fillRect(4, 4, 56, 56);
+
+    // Arka Plan Parşömen / Sıcak Gradyan
+    const bgGrad = ctx.createLinearGradient(4, 4, 60, 60);
+    if (isCan) {
+      bgGrad.addColorStop(0, '#eaf2ec');
+      bgGrad.addColorStop(1, '#d5e5d8');
+    } else {
+      bgGrad.addColorStop(0, '#f9edf2');
+      bgGrad.addColorStop(1, '#eadaea');
+    }
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(5, 5, 54, 54);
+
+    if (isCan) {
+      // CAN: SICAK ESMER TEN, ESPRESSO SAÇ, ORMAN YEŞİLİ TRİKO
+      const p = {
+        skin: '#c28253',
+        skinDark: '#965e38',
+        skinLight: '#d99768',
+        blush: '#b86657',
+        hair: '#24150b',
+        hairMid: '#3d2516',
+        hairLight: '#613b22',
+        eyes: '#1a0e07',
+        shirt: '#2e6b3f',
+        shirtLight: '#439257',
+        shirtDark: '#1c4628',
+        collar: '#f4ece1'
+      };
+
+      // 1. Omuzlar ve Kazak (y: 44-58)
+      px(8, 48, p.shirtDark, 48, 11);
+      px(10, 46, p.shirtDark, 44, 13);
+      px(12, 45, p.shirt, 40, 14);
+      px(16, 47, p.shirtLight, 32, 2);
+      for (let x = 14; x <= 50; x += 4) {
+        px(x, 48, p.shirtDark, 1, 11);
+      }
+
+      // 2. Beyaz Yaka
+      px(24, 44, p.collar, 16, 7);
+      px(26, 45, '#ffffff', 12, 5);
+      px(30, 47, p.skinDark, 4, 4);
+      px(31, 48, p.skin, 2, 3);
+
+      // 3. Boyun
+      px(26, 37, p.skinDark, 12, 9);
+      px(28, 38, p.skin, 8, 8);
+      px(28, 37, p.skinDark, 8, 2);
+
+      // 4. Çene & Yüz Tabanı
+      px(20, 16, p.skinDark, 24, 22);
+      px(21, 16, p.skin, 22, 22);
+      px(23, 38, p.skinDark, 18, 2);
+      px(26, 40, p.skinDark, 12, 1);
+      px(23, 17, p.skinLight, 18, 20);
+
+      // 5. Yanak Allıkları & Gamze
+      px(22, 29, p.blush, 5, 2);
+      px(37, 29, p.blush, 5, 2);
+
+      // 6. Burun
+      px(31, 26, p.skinDark, 2, 5);
+      px(33, 29, p.skinDark, 2, 2);
+      px(30, 27, p.skinLight, 1, 4);
+
+      // 7. Ağız & Gülümseme
+      px(28, 34, '#8c3d31', 8, 2);
+      px(30, 35, '#ffffff', 4, 1);
+      px(27, 33, '#6e2b21', 1, 2);
+      px(36, 33, '#6e2b21', 1, 2);
+
+      // 8. Gözler
+      px(22, 24, p.eyes, 6, 4);
+      px(23, 25, '#ffffff', 2, 2);
+      px(26, 26, '#3a1f10', 2, 2);
+      px(36, 24, p.eyes, 6, 4);
+      px(37, 25, '#ffffff', 2, 2);
+      px(40, 26, '#3a1f10', 2, 2);
+
+      // 9. Belirgin Kaşlar
+      px(21, 21, p.hair, 8, 2);
+      px(22, 20, p.hair, 6, 1);
+      px(35, 21, p.hair, 8, 2);
+      px(36, 20, p.hair, 6, 1);
+
+      // 10. Saçlar (Hacimli espresso saç)
+      px(16, 8, p.hair, 32, 9);
+      px(18, 7, p.hair, 28, 4);
+      px(20, 5, p.hair, 24, 3);
+      px(22, 7, p.hairMid, 22, 5);
+      px(24, 8, p.hairLight, 16, 3);
+      px(16, 15, p.hair, 5, 14);
+      px(17, 17, p.hairMid, 3, 10);
+      px(43, 15, p.hair, 5, 14);
+      px(44, 17, p.hairMid, 3, 10);
+      px(21, 14, p.hair, 4, 5);
+      px(25, 13, p.hairMid, 6, 4);
+      px(34, 13, p.hair, 5, 5);
+      px(39, 14, p.hairMid, 4, 4);
+
+    } else {
+      // SEZEN: DURU BEYAZ TEN, GECE MAVİSİ & SİYAH SAÇ, LAVANTA KAZAK & MERCAN TOKA
+      const p = {
+        skin: '#fff0e6',
+        skinDark: '#ebd2c3',
+        skinLight: '#ffffff',
+        blush: '#ff94a2',
+        hair: '#0c121d',
+        hairMid: '#1a3354',
+        hairLight: '#366aa3',
+        hairSheen: '#6399db',
+        eyes: '#121f33',
+        eyeBlue: '#224870',
+        ribbon: '#e76f51',
+        shirt: '#7d53b8',
+        shirtLight: '#996ddb',
+        shirtDark: '#5c3a8e',
+        collar: '#f8f4eb'
+      };
+
+      // 1. Arka Uzun Saçlar
+      px(13, 18, p.hair, 38, 38);
+      px(12, 26, p.hairMid, 8, 28);
+      px(44, 26, p.hairMid, 8, 28);
+
+      // 2. Omuzlar ve Lavanta Kazak
+      px(10, 48, p.shirtDark, 44, 11);
+      px(12, 46, p.shirt, 40, 13);
+      px(16, 47, p.shirtLight, 32, 2);
+      for (let x = 16; x <= 48; x += 4) {
+        px(x, 48, p.shirtDark, 1, 11);
+      }
+
+      // 3. Krem Yaka & Boyun
+      px(25, 43, p.collar, 14, 5);
+      px(27, 44, '#ffffff', 10, 3);
+      px(26, 36, p.skinDark, 12, 9);
+      px(28, 37, p.skin, 8, 8);
+      px(28, 36, p.skinDark, 8, 2);
+
+      // 4. Çene & Duru Porselen Yüz
+      px(19, 16, p.skinDark, 26, 21);
+      px(20, 16, p.skin, 24, 21);
+      px(22, 37, p.skinDark, 20, 2);
+      px(25, 39, p.skinDark, 14, 1);
+      px(22, 17, p.skinLight, 20, 19);
+
+      // 5. Sevimli Pembe Yanak Allıkları
+      px(21, 28, p.blush, 6, 3);
+      px(37, 28, p.blush, 6, 3);
+      px(23, 29, '#ffffff', 2, 1);
+      px(39, 29, '#ffffff', 2, 1);
+
+      // 6. Zarif Minik Burun
+      px(31, 27, p.skinDark, 2, 3);
+      px(31, 27, p.skinLight, 1, 2);
+
+      // 7. Tatlı Gülümseme
+      px(28, 33, '#d0536c', 8, 2);
+      px(29, 34, '#ffffff', 6, 1);
+
+      // 8. İri, Canlı Safir & Lacivert Gözler
+      px(22, 23, p.hair, 7, 5);
+      px(23, 24, p.eyes, 5, 4);
+      px(24, 25, p.eyeBlue, 3, 3);
+      px(23, 24, '#ffffff', 2, 2);
+      px(25, 26, '#ffffff', 1, 1);
+      px(35, 23, p.hair, 7, 5);
+      px(36, 24, p.eyes, 5, 4);
+      px(37, 25, p.eyeBlue, 3, 3);
+      px(36, 24, '#ffffff', 2, 2);
+      px(38, 26, '#ffffff', 1, 1);
+
+      // 9. Kirpikler ve Kavisli Kaşlar
+      px(21, 22, p.hair, 8, 1);
+      px(20, 23, p.hair, 2, 1);
+      px(35, 22, p.hair, 8, 1);
+      px(42, 23, p.hair, 2, 1);
+      px(23, 19, p.hairMid, 6, 1);
+      px(35, 19, p.hairMid, 6, 1);
+
+      // 10. Saçlar (Gece mavisi parlak ışıltı)
+      px(17, 8, p.hair, 30, 9);
+      px(19, 6, p.hair, 26, 4);
+      px(21, 5, p.hair, 22, 2);
+      px(22, 7, p.hairMid, 20, 4);
+      px(24, 8, p.hairLight, 16, 2);
+      px(26, 9, p.hairSheen, 10, 1);
+      px(15, 17, p.hair, 5, 26);
+      px(16, 22, p.hairMid, 3, 20);
+      px(17, 28, p.hairLight, 2, 12);
+      px(44, 17, p.hair, 5, 26);
+      px(45, 22, p.hairMid, 3, 20);
+      px(46, 28, p.hairLight, 2, 12);
+      px(23, 13, p.hair, 4, 6);
+      px(27, 12, p.hairMid, 6, 4);
+      px(33, 12, p.hair, 6, 5);
+
+      // 11. Mercan Saç Tokası / Kurdele
+      px(43, 12, p.ribbon, 6, 6);
+      px(44, 13, '#f77f00', 4, 4);
+      px(45, 14, '#ffffff', 2, 2);
+      px(47, 17, p.ribbon, 3, 5);
+    }
   }
 };
 

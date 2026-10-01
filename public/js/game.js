@@ -992,15 +992,18 @@ const Game = {
       const player = currentPlayers.find(p => p.name === bubble.sender);
       if (player) {
         const isMe = this.localPlayer && (player.id === this.localPlayer.id || player.name === this.localPlayer.name);
-        targetX = (isMe ? this.localPlayer.x : player.x) + 12;
-        targetY = (isMe ? this.localPlayer.y : player.y) - 18;
+        const px = isMe ? this.localPlayer.x : player.x;
+        const py = isMe ? this.localPlayer.y : player.y;
+        const isSitting = isMe ? this.localPlayer.isSitting : player.isSitting;
+        targetX = px + 12;
+        targetY = isSitting ? py - 22 : py - 18;
       } else {
         // NPC mi konuştu?
         const map = Maps[this.currentRoom];
         const npc = map?.npcs?.find(n => n.name === bubble.sender);
         if (npc) {
           targetX = npc.x + 12;
-          targetY = npc.y - 18;
+          targetY = npc.isSitting ? npc.y - 22 : npc.y - 18;
         }
       }
 
@@ -1305,7 +1308,7 @@ const Game = {
 
     if (can && sezen && can.isSitting && sezen.isSitting) {
       const midX = (can.x + sezen.x) / 2 + 12;
-      const midY = Math.min(can.y, sezen.y) - 34;
+      const midY = Math.min(can.y, sezen.y) - 46;
 
       this.ctx.save();
       const sparkY = Math.sin(time * 0.005) * 3;
