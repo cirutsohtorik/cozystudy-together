@@ -1,0 +1,21 @@
+{
+  "name": "cozy-study-together",
+  "version": "1.0.0",
+  "description": "Stardew Valley esintili Can & Sezen multiplayer cozy ders çalışma oyunu",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "share": "npx localtunnel --port 3000"
+  },
+  "keywords": ["game", "multiplayer", "pixel-art", "study", "pomodoro", "stardew-valley"],
+  "author": "Can & Sezen",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "localtunnel": "^2.0.2"
+  }
+}

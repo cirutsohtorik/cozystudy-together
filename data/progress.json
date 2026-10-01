@@ -1,0 +1,33 @@
+{
+  "totalStudyMinutes": 13,
+  "cozyHearts": 23,
+  "currentStreak": 2,
+  "lastStudyDate": "2026-10-01",
+  "unlockedDecors": [
+    "plant_monstera"
+  ],
+  "notes": [
+    {
+      "id": "desk_1790847490131",
+      "sender": "Can",
+      "text": "zaxd",
+      "date": "12:38",
+      "room": "classroom",
+      "tableId": "class_couple"
+    },
+    {
+      "id": "note_1790787211557",
+      "sender": "Can",
+      "text": "zaxd",
+      "date": "30 Eyl 19:53",
+      "room": "garden"
+    },
+    {
+      "id": "note_welcome",
+      "sender": "Sistem",
+      "text": "Can & Sezen'in ortak çalışma dünyasına hoş geldiniz! Birbirinize notlar bırakabilirsiniz ❤️",
+      "date": "Bugün",
+      "room": "classroom"
+    }
+  ]
+}

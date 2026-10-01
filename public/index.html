@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CozyStudy 2.0 - Can & Sezen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&family=Silkscreen:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+  <!-- Özel Çift Şifre Doğrulama Kapısı (Sezen99720.) -->
+  <div id="auth-modal" class="modal-overlay hidden">
+    <div class="pixel-box auth-box">
+      <div class="auth-icon" style="font-size: 32px; margin-bottom: 8px;">🔐</div>
+      <h2 class="pixel-title" style="font-size: 18px; margin-bottom: 6px; color: #4a2810;">Can & Sezen Cozy Odası</h2>
+      <p style="font-size: 13px; color: #5c3214; margin-bottom: 14px; line-height: 1.4;">Burası sadece ikimize özel bir çalışma sığınağıdır 💕<br>Lütfen çift şifresini girin:</p>
+      <form id="auth-form" onsubmit="window.handleAuthSubmit(event)">
+        <input type="password" id="auth-password-input" class="pixel-input" placeholder="Oda Şifresi..." autocomplete="current-password" required />
+        <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: center;">
+          <button type="submit" class="pixel-btn">Odaya Gir 🌸</button>
+        </div>
+        <p id="auth-error-msg" class="auth-error hidden" style="color: #c0392b; font-size: 12px; margin-top: 8px; font-weight: bold;">Hatalı şifre! Lütfen tekrar deneyin.</p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Karakter Seçim Ekranı -->
+  <div id="character-select-screen" class="overlay-screen active">
+    <div class="pixel-box select-card">
+      <div class="hero-banner-box">
+        <img src="assets/cozystudy_hero_banner.jpg" alt="CozyStudy Can & Sezen" class="hero-banner-img">
+      </div>
+      <h1 class="pixel-title">🌸 CozyStudy ☕</h1>
+      <p class="pixel-subtitle">Can & Sezen Birlikte Ders Çalışma Oyunu</p>
+      
+      <div class="character-slots">
+        <!-- Can Kartı -->
+        <div class="character-card" id="slot-can" onclick="window.selectCharacter('Can')">
+          <div class="pixel-avatar-box">
+            <canvas id="preview-can" width="64" height="64"></canvas>
+          </div>
+          <h2 class="char-name">CAN</h2>
+          <span class="status-badge available" id="badge-can">Müsait</span>
+          <button class="pixel-btn" id="btn-can">Can Olarak Katıl</button>
+        </div>
+
+        <!-- Sezen Kartı -->
+        <div class="character-card" id="slot-sezen" onclick="window.selectCharacter('Sezen')">
+          <div class="pixel-avatar-box">
+            <canvas id="preview-sezen" width="64" height="64"></canvas>
+          </div>
+          <h2 class="char-name">SEZEN</h2>
+          <span class="status-badge available" id="badge-sezen">Müsait</span>
+          <button class="pixel-btn" id="btn-sezen">Sezen Olarak Katıl</button>
+        </div>
+      </div>
+
+      <div class="instructions-box">
+        <p>🎮 <b>Kontroller:</b> [W,A,S,D] veya [Ok Tuşları] ile gezinin.</p>
+        <p>🪑 Masalara yaklaşıp <b>[E]</b> tuşuna basarak ders çalışın (Serbest veya 25/5 Pomodoro).</p>
+        <p>🫂 Birbirinize yaklaştığınızda <b>[H]</b> tuşuna basarak sarılın!</p>
+        <p>🐾 Kafedeki kedi Pamuk'u <b>[E]</b> ile sevebilirsiniz.</p>
+        <p>💌 Tahtadaki not panosuna birbiriniz için küçük sevgi notları asabilirsiniz.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Oyun Ana Konteyneri -->
+  <div id="game-container">
+    <!-- Üst HUD Bar -->
+    <header id="top-hud" class="pixel-box">
+      <div class="hud-left">
+        <span class="connection-status online" id="connection-status">● Bağlı</span>
+        <span class="room-indicator" id="room-name">🏫 Sınıf</span>
+        <span class="streak-badge" id="hud-streak" title="Günlük Çalışma Serisi">🔥 1 Gün</span>
+        <span class="hearts-badge" id="hud-hearts" title="Kazanılan Cozy Kalpler">💕 10</span>
+      </div>
+      <div class="hud-center" id="hud-partner-status">
+        <span class="partner-text" id="partner-info">Sezen bekleniyor...</span>
+      </div>
+      <div class="hud-right">
+        <button id="btn-popout-window" class="pixel-icon-btn" title="Kayan Pencere Modu" onclick="window.openPopoutWindow()">🗗</button>
+        <button id="btn-open-notes" class="pixel-icon-btn" title="Sevgi & Motivasyon Notları" onclick="window.openNotesModal()">💌</button>
+        <button id="btn-open-shop" class="pixel-icon-btn" title="Cozy Dükkan & Dekorasyon" onclick="window.openShopModal()">🛍️</button>
+        <button id="btn-audio-toggle" class="pixel-icon-btn" title="Doğal Ambiyans Sesini Aç/Kapat">🔊</button>
+      </div>
+    </header>
+
+    <!-- Oyun Canvası -->
+    <main id="canvas-wrapper">
+      <canvas id="gameCanvas" width="640" height="400" tabindex="0"></canvas>
+      
+      <!-- Masaya Yaklaşınca Çıkan İpucu -->
+      <div id="interaction-prompt" class="interaction-prompt hidden">
+        <span class="key-tag">E</span> Masaya Otur
+      </div>
+
+      <!-- Sarılma İpucu [H] -->
+      <div id="hug-prompt" class="interaction-prompt hug-prompt hidden">
+        <span class="key-tag">H</span> Sarıl ❤️
+      </div>
+
+      <!-- Kedi Sevme İpucu [E] -->
+      <div id="cat-prompt" class="interaction-prompt cat-prompt hidden">
+        <span class="key-tag">E</span> Pamuk'u Sev 🐾
+      </div>
+
+      <!-- Not Panosu İpucu [E] -->
+      <div id="noteboard-prompt" class="interaction-prompt noteboard-prompt hidden">
+        <span class="key-tag">E</span> Not Panosunu Aç 💌
+      </div>
+
+      <!-- Sessiz Görsel Pomodoro Bildirimi -->
+      <div id="pomodoro-toast" class="pomodoro-toast hidden">
+        🍅 25 Dakika Odaklanma Tamamlandı! Mola Vakti Geldi.
+      </div>
+    </main>
+
+    <!-- Alt HUD: İfadeler ve Sohbet -->
+    <footer id="bottom-hud">
+      <div class="emote-bar pixel-box">
+        <button class="emote-btn" onclick="window.sendEmote('heart')">❤️ Sevgi</button>
+        <button class="emote-btn" onclick="window.sendEmote('coffee')">☕ Kahve</button>
+        <button class="emote-btn" onclick="window.sendEmote('cheer')">🎉 Tebrik</button>
+        <button class="emote-btn" onclick="window.sendEmote('sparkle')">✨ Harika</button>
+        <button class="emote-btn" onclick="window.sendEmote('sleep')">💤 Uykulu</button>
+      </div>
+
+      <div class="chat-bar pixel-box">
+        <div id="chat-messages" class="chat-messages"></div>
+        <form id="chat-form" onsubmit="window.handleChatSubmit(event)">
+          <input type="text" id="chat-input" placeholder="Bir mesaj yazın..." maxlength="60" autocomplete="off" />
+          <button type="submit" class="pixel-btn-small">Gönder</button>
+        </form>
+      </div>
+    </footer>
+  </div>
+
+
+
+  <!-- Masaya Oturunca Açılan Konu ve Mod Seçim Modalı -->
+  <div id="study-modal" class="modal-overlay hidden">
+    <div class="pixel-box modal-content">
+      <div class="modal-banner-box">
+        <img id="study-modal-banner-img" src="assets/cozy_garden_gazebo.jpg" alt="Çalışma Masası" class="modal-banner-img">
+      </div>
+      <h3 class="modal-title">📖 Ders Çalışma Masası</h3>
+      <p class="modal-desc">Şimdi ne çalışacaksın sevgilim?</p>
+      
+      <!-- Sayaç Modu Seçimi -->
+      <div class="timer-mode-selector">
+        <label class="mode-label">
+          <input type="radio" name="studyMode" value="stopwatch" checked id="mode-stopwatch">
+          <span>⏱️ Serbest Sayaç</span>
+        </label>
+        <label class="mode-label">
+          <input type="radio" name="studyMode" value="pomodoro" id="mode-pomodoro">
+          <span>🍅 25/5 Pomodoro</span>
+        </label>
+      </div>
+
+      <div class="quick-tags">
+        <button type="button" class="tag-btn" onclick="window.setSubjectInput('Kalkülüs / Matematik')">Matematik</button>
+        <button type="button" class="tag-btn" onclick="window.setSubjectInput('Yazılım / Proje')">Yazılım</button>
+        <button type="button" class="tag-btn" onclick="window.setSubjectInput('Biyoloji / Tıp')">Biyoloji</button>
+        <button type="button" class="tag-btn" onclick="window.setSubjectInput('İngilizce / Dil')">İngilizce</button>
+        <button type="button" class="tag-btn" onclick="window.setSubjectInput('Tez / Makale')">Tez / Makale</button>
+        <button type="button" class="tag-btn" onclick="window.setSubjectInput('Kitap Okuma')">Kitap</button>
+      </div>
+
+      <input type="text" id="subject-input" class="pixel-input" placeholder="Ders veya konu başlığı..." maxlength="40" />
+
+      <div class="modal-actions">
+        <button type="button" class="pixel-btn" onclick="window.confirmStudySession()">📚 Çalışmaya Başla</button>
+        <button type="button" class="pixel-btn cancel" onclick="window.closeStudyModal()">Vazgeç</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Not Panosu Modalı (Post-It Panosu) -->
+  <div id="notes-modal" class="modal-overlay hidden">
+    <div class="pixel-box notes-modal-content">
+      <div class="notes-header">
+        <h3>💌 Sevgi & Motivasyon Notları</h3>
+        <button class="pixel-icon-btn close-btn" onclick="window.closeNotesModal()">✖</button>
+      </div>
+      <div id="notes-list" class="notes-grid"></div>
+
+      <form id="new-note-form" onsubmit="window.handleNoteSubmit(event)">
+        <input type="text" id="new-note-input" class="pixel-input" placeholder="Sevgiline bir not bırak (örn: Çok güzel çalışıyorsun ❤️)..." maxlength="120" required />
+        <button type="submit" class="pixel-btn">Pano As 📌</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dükkan / Dekorasyon Modalı -->
+  <div id="shop-modal" class="modal-overlay hidden">
+    <div class="pixel-box shop-modal-content">
+      <div class="modal-banner-box">
+        <img src="assets/cozy_coffee_bar.jpg" alt="Cozy Dükkan & Kafe" class="modal-banner-img">
+      </div>
+      <div class="shop-header">
+        <h3>🛍️ Cozy Dükkan & Dekorasyon</h3>
+        <span class="shop-balance" id="shop-balance-display">Mevcut: 💕 10 Kalp</span>
+        <button class="pixel-icon-btn close-btn" onclick="window.closeShopModal()">✖</button>
+      </div>
+      <p class="shop-subtitle">Birlikte çalıştığınız her dakika 1 Cozy Kalp kazandırır!</p>
+
+      <div class="shop-items-grid" id="shop-items-container">
+        <!-- Dekor Ürünleri JavaScript ile render edilir -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Masadayken Görünen Canlı Çalışma Kontrol Paneli -->
+  <div id="study-active-hud" class="study-active-hud hidden pixel-box">
+    <div class="study-hud-portrait-box">
+      <img id="study-hud-char-img" src="assets/can_portrait.jpg" alt="Ders Çalışan" class="study-hud-thumb" />
+    </div>
+    <div class="study-hud-info">
+      <div class="study-subject-label" id="active-study-subject">📖 Matematik</div>
+      <div class="study-timer" id="active-study-timer">00:00:00</div>
+    </div>
+    <div class="study-hud-actions">
+      <button id="btn-serve-coffee" class="pixel-btn-action coffee" title="Sevgiline taze sıcak kahve ikram et" onclick="window.serveCoffeeToPartner()">☕ Kahve Ver</button>
+      <button id="btn-desk-note" class="pixel-btn-action note" title="Masanın kenarına sevgi notu iliştir" onclick="window.openDeskNoteModal()">📝 Not Yaz</button>
+      <button id="btn-pause-study" class="pixel-btn-action pause" onclick="window.togglePauseStudy()">☕ Mola Ver</button>
+      <button id="btn-end-study" class="pixel-btn-action stop" onclick="window.endStudySession()">⏹️ Bitir</button>
+    </div>
+  </div>
+
+  <!-- Masaya Özel Post-It Aşk Notu Modalı -->
+  <div id="desk-note-modal" class="modal-overlay hidden">
+    <div class="pixel-box desk-note-box">
+      <div class="desk-note-header">
+        <span class="pin-icon">📌</span>
+        <h3>Masadaki Aşk Notu</h3>
+        <button class="pixel-icon-btn close-btn" onclick="window.closeDeskNoteModal()">✖</button>
+      </div>
+      <div class="desk-note-paper">
+        <div id="desk-note-latest-text" class="desk-note-content">"Çok güzel çalışıyorsun sevgilim, az kaldı! ❤️"</div>
+        <div id="desk-note-latest-author" class="desk-note-author">— Sezen</div>
+      </div>
+      <form id="desk-note-form" onsubmit="window.handleDeskNoteSubmit(event)">
+        <input type="text" id="desk-note-input" class="pixel-input" placeholder="Sevgiline motive edici bir aşk notu yaz..." maxlength="100" autocomplete="off" required />
+        <div class="modal-actions">
+          <button type="submit" class="pixel-btn">Masaya İğnele 📌</button>
+          <button type="button" class="pixel-btn cancel" onclick="window.closeDeskNoteModal()">Kapat</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Cozy Toast Bildirim Pop-up'ı (Kahve ikramı, partner molası vb.) -->
+  <div id="cozy-toast" class="cozy-toast hidden"></div>
+
+  <!-- Tebrik / Seans Sonu Bildirimi -->
+  <div id="celebration-overlay" class="celebration-overlay hidden">
+    <div class="pixel-box celebration-box">
+      <h2>🎉 Harika Bir Seans! 🎉</h2>
+      <p id="celebration-text">45 dakika boyunca Matematik çalıştınız!</p>
+      <p class="hearts-earned-text" id="celebration-hearts">+45 Cozy Kalp Kazanıldı! 💕</p>
+      <div class="hearts-animation">❤️❤️❤️</div>
+      <button class="pixel-btn" onclick="window.closeCelebration()">Ayağa Kalk</button>
+    </div>
+  </div>
+
+  <script src="js/audio.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/asset_loader.js"></script>
+  <script src="js/maps.js"></script>
+  <script src="js/network.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

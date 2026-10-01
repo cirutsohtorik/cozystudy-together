@@ -1,0 +1,1518 @@
+/* ========================================================
+   CozyStudy: Good Coffee, Great Coffee & Stardew Valley CSS
+   ======================================================== */
+
+:root {
+  --wood-roast: #221208;
+  --wood-dark: #3a1e0c;
+  --wood-mid: #633617;
+  --wood-light: #945627;
+  --wood-border: #1a0d05;
+  --parchment: #faf3e3;
+  --parchment-dark: #ede1c7;
+  --gold: #f8cf48;
+  --gold-warm: #e6b022;
+  --gold-dark: #b38210;
+  --green: #488738;
+  --green-dark: #29541d;
+  --red: #c0392b;
+  --pink: #ff85a1;
+  --pink-soft: #ffe3e8;
+  --blue: #3d7cb8;
+  --font-pixel: 'Pixelify Sans', 'Silkscreen', monospace;
+  --font-retro: 'Silkscreen', 'Press Start 2P', monospace;
+  --font-hand: 'Patrick Hand', cursive, sans-serif;
+  --pixel-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+body {
+  background-color: #160e0a;
+  background-image: 
+    radial-gradient(#291912 18%, transparent 19%),
+    radial-gradient(#22140e 18%, transparent 19%);
+  background-position: 0 0, 8px 8px;
+  background-size: 16px 16px;
+  color: var(--wood-dark);
+  font-family: var(--font-pixel);
+  font-size: 15px;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* ========================================================
+   Good Coffee Stili Ahşap & Parşömen Kutular (.pixel-box)
+   ======================================================== */
+
+.pixel-box {
+  background: var(--parchment);
+  border: 4px solid var(--wood-mid);
+  outline: 3px solid var(--wood-border);
+  box-shadow: 
+    inset 2px 2px 0px rgba(255, 255, 255, 0.8),
+    inset -2px -2px 0px var(--parchment-dark),
+    var(--pixel-shadow);
+  border-radius: 4px;
+  position: relative;
+}
+
+/* ========================================================
+   Karakter Seçim Ekranı
+   ======================================================== */
+
+.overlay-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(14, 8, 6, 0.88);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  backdrop-filter: blur(3px);
+}
+
+.overlay-screen.hidden {
+  display: none;
+}
+
+.select-card {
+  width: 640px;
+  max-width: 95vw;
+  padding: 24px;
+  text-align: center;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.hero-banner-box {
+  width: 100%;
+  height: 150px;
+  overflow: hidden;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border: 3px solid var(--wood-mid);
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.4), var(--pixel-shadow);
+}
+
+.hero-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.stardew-portrait-wrapper {
+  width: 130px;
+  height: 130px;
+  margin: 0 auto 12px;
+  border: 3px solid var(--wood-mid);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 2px 3px 0 var(--wood-border);
+  background: var(--wood-dark);
+}
+
+.stardew-portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s ease;
+}
+
+.character-card:hover .stardew-portrait-img {
+  transform: scale(1.06);
+}
+
+.hud-player-avatar {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 6px;
+}
+
+.hud-mini-portrait {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  object-fit: cover;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+  vertical-align: middle;
+}
+
+.modal-banner-box {
+  width: 100%;
+  height: 125px;
+  overflow: hidden;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  border: 2px solid var(--wood-mid);
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.modal-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.pixel-title {
+  font-family: var(--font-pixel);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--wood-dark);
+  text-shadow: 2px 2px 0px var(--gold);
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.pixel-subtitle {
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  color: var(--wood-light);
+  margin-bottom: 24px;
+}
+
+.character-slots {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.character-card {
+  flex: 1;
+  background: var(--parchment-dark);
+  border: 3px solid var(--wood-light);
+  padding: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.character-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--gold-warm);
+  box-shadow: 0 6px 0 var(--wood-border);
+}
+
+.character-card.occupied {
+  opacity: 0.55;
+  filter: grayscale(70%);
+  pointer-events: none;
+}
+
+.pixel-avatar-box {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 12px;
+  background: #fffdf7;
+  border: 2px solid var(--wood-mid);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  image-rendering: pixelated;
+  border-radius: 3px;
+  box-shadow: inset 1px 1px 0 rgba(0,0,0,0.1);
+}
+
+.char-name {
+  font-family: var(--font-retro);
+  font-size: 14px;
+  color: var(--wood-dark);
+  margin-bottom: 6px;
+}
+
+.status-badge {
+  display: inline-block;
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 3px;
+  margin-bottom: 12px;
+}
+
+.status-badge.available {
+  background: var(--green);
+  color: #fff;
+  border: 1px solid var(--green-dark);
+}
+
+.status-badge.busy {
+  background: var(--red);
+  color: #fff;
+}
+
+.instructions-box {
+  background: rgba(70, 35, 15, 0.05);
+  border: 2px dashed var(--wood-light);
+  padding: 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: left;
+  color: #3b2010;
+}
+
+/* ========================================================
+   Zanaat Butonları (Craft Pixel Buttons)
+   ======================================================== */
+
+.pixel-btn {
+  background: var(--gold);
+  color: var(--wood-dark);
+  border: 2px solid var(--wood-border);
+  padding: 8px 18px;
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 var(--gold-dark), 2px 3px 0 var(--wood-border);
+  border-radius: 3px;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+
+.pixel-btn:hover {
+  background: #ffe37a;
+  transform: translateY(-1px);
+}
+
+.pixel-btn:active {
+  transform: translate(2px, 3px);
+  box-shadow: none;
+}
+
+.pixel-btn.cancel {
+  background: #ded7c8;
+}
+
+.pixel-btn-small {
+  background: var(--gold);
+  border: 2px solid var(--wood-border);
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.pixel-btn-small:hover {
+  background: #ffe37a;
+}
+
+.pixel-icon-btn {
+  background: var(--parchment-dark);
+  border: 2px solid var(--wood-border);
+  font-size: 16px;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  box-shadow: 1px 2px 0 var(--wood-border);
+  transition: transform 0.1s, background-color 0.1s;
+}
+
+.pixel-icon-btn:hover {
+  background: var(--gold);
+  transform: translateY(-2px);
+}
+
+.pixel-icon-btn:active {
+  transform: translateY(1px);
+}
+
+.pixel-icon-btn.close-btn {
+  font-size: 12px;
+  width: 26px;
+  height: 26px;
+}
+
+/* ========================================================
+   Oyun Alanı & Canvas
+   ======================================================== */
+
+#game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 920px;
+  max-width: 98vw;
+}
+
+#top-hud {
+  width: 100%;
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.hud-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.connection-status {
+  font-family: var(--font-retro);
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+}
+
+.connection-status.online {
+  background: #ebfbee;
+  color: #2b8a3e;
+  border: 1px solid #40c057;
+}
+
+.connection-status.offline {
+  background: #fff5f5;
+  color: #c92a2a;
+  border: 1px solid #fa5252;
+}
+
+.hud-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  text-align: center;
+}
+
+.streak-badge {
+  background: #ffe8cc;
+  border: 1px solid #e8590c;
+  color: #d9480f;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-family: var(--font-retro);
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.hearts-badge {
+  background: #ffe3e8;
+  border: 1px solid #f06595;
+  color: #c2255c;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-family: var(--font-retro);
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.room-indicator {
+  font-family: var(--font-pixel);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--wood-dark);
+}
+
+.hud-right {
+  display: flex;
+  gap: 8px;
+}
+
+.partner-text {
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  color: var(--wood-light);
+}
+
+#canvas-wrapper {
+  position: relative;
+  width: 896px;
+  height: 560px;
+  max-width: 100%;
+  border: 4px solid var(--wood-mid);
+  outline: 3px solid var(--wood-border);
+  box-shadow: var(--pixel-shadow), 0 0 25px rgba(0, 0, 0, 0.6);
+  background-color: #000;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* ========================================================
+   Etkileşim İpuçları (Masaya Otur, Sarıl, Kedi Sev)
+   ======================================================== */
+
+.interaction-prompt {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(26, 13, 5, 0.92);
+  color: #fff;
+  border: 2px solid var(--gold);
+  padding: 6px 16px;
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 4px;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: bounce 0.6s infinite alternate ease-in-out;
+  z-index: 20;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.interaction-prompt.hug-prompt {
+  bottom: 60px;
+  border-color: #ff8fa3;
+}
+
+.interaction-prompt.cat-prompt {
+  bottom: 95px;
+  border-color: #f4a261;
+}
+
+.interaction-prompt.noteboard-prompt {
+  bottom: 60px;
+  border-color: #ffe066;
+}
+
+.interaction-prompt.hidden {
+  display: none;
+}
+
+.key-tag {
+  background: var(--gold);
+  color: var(--wood-dark);
+  padding: 2px 7px;
+  border-radius: 2px;
+  font-family: var(--font-retro);
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* Sessiz Pomodoro Bildirimi */
+.pomodoro-toast {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2b8a3e;
+  color: #fff;
+  border: 2px solid #b2f2bb;
+  padding: 8px 18px;
+  border-radius: 4px;
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  animation: popIn 0.3s ease-out;
+  z-index: 30;
+}
+
+.pomodoro-toast.hidden {
+  display: none;
+}
+
+/* ========================================================
+   Alt HUD (Emotelar ve Sohbet)
+   ======================================================== */
+
+#bottom-hud {
+  width: 100%;
+  margin-top: 6px;
+  display: flex;
+  gap: 8px;
+}
+
+.emote-bar {
+  flex: 1;
+  padding: 8px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.emote-btn {
+  background: var(--parchment-dark);
+  border: 2px solid var(--wood-border);
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  box-shadow: 1px 2px 0 var(--wood-border);
+  transition: transform 0.1s, background-color 0.1s;
+}
+
+.emote-btn:hover {
+  transform: translateY(-2px);
+  background: var(--gold);
+}
+
+.emote-btn:active {
+  transform: translateY(1px);
+}
+
+.chat-bar {
+  flex: 1.4;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 110px;
+}
+
+.chat-messages {
+  height: 75px;
+  max-height: 75px;
+  overflow-y: auto;
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  line-height: 1.45;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 4px;
+  padding: 4px 6px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 3px;
+  border: 1px solid rgba(70, 35, 10, 0.15);
+  scroll-behavior: smooth;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: var(--wood-light);
+  border-radius: 2px;
+}
+
+.chat-msg {
+  word-break: break-word;
+  white-space: normal;
+  line-height: 1.35;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.chat-msg:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.chat-msg .sender {
+  font-weight: bold;
+  color: var(--wood-dark);
+  margin-right: 4px;
+}
+
+#chat-form {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+#chat-input {
+  flex: 1;
+  background: #fff;
+  border: 2px solid var(--wood-mid);
+  padding: 5px 8px;
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  outline: none;
+  border-radius: 2px;
+}
+
+/* ========================================================
+   Ders Çalışma Modalı
+   ======================================================== */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(14, 8, 6, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 90;
+  backdrop-filter: blur(2px);
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-content {
+  width: 480px;
+  padding: 22px;
+  text-align: center;
+}
+
+.timer-mode-selector {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.mode-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--parchment-dark);
+  padding: 6px 12px;
+  border: 2px solid var(--wood-mid);
+  border-radius: 3px;
+  transition: background-color 0.1s;
+}
+
+.mode-label:hover {
+  background: var(--gold);
+}
+
+.modal-title {
+  font-family: var(--font-pixel);
+  font-size: 22px;
+  margin-bottom: 6px;
+  color: var(--wood-dark);
+}
+
+.modal-desc {
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  color: var(--wood-light);
+  margin-bottom: 14px;
+}
+
+.quick-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.tag-btn {
+  background: var(--parchment-dark);
+  border: 1px solid var(--wood-mid);
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background-color 0.1s;
+}
+
+.tag-btn:hover {
+  background: var(--gold);
+}
+
+.pixel-input {
+  width: 100%;
+  padding: 8px 10px;
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  border: 2px solid var(--wood-mid);
+  margin-bottom: 16px;
+  outline: none;
+  border-radius: 2px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* ========================================================
+   Not Panosu Modalı (Post-It Panosu)
+   ======================================================== */
+
+.notes-modal-content {
+  width: 540px;
+  max-height: 82vh;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.notes-header h3 {
+  font-family: var(--font-pixel);
+  font-size: 18px;
+}
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 14px;
+  padding: 8px;
+}
+
+.post-it-note {
+  background: #fff8cc;
+  border: 1px solid #e6b800;
+  box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.15);
+  padding: 12px;
+  position: relative;
+  font-family: var(--font-hand);
+  font-size: 16px;
+  line-height: 1.35;
+  border-radius: 2px;
+  transform: rotate(-1.5deg);
+  transition: transform 0.15s;
+}
+
+.post-it-note:hover {
+  transform: rotate(0deg) scale(1.03);
+  z-index: 5;
+}
+
+.post-it-note:nth-child(even) {
+  background: #ffe3e8;
+  border-color: #f783ac;
+  transform: rotate(1.5deg);
+}
+
+.post-it-note:nth-child(3n) {
+  background: #e7f5ff;
+  border-color: #74c0fc;
+  transform: rotate(-0.5deg);
+}
+
+.post-it-pin {
+  width: 10px;
+  height: 10px;
+  background: #e03131;
+  border-radius: 50%;
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.post-it-sender {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--wood-dark);
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.post-it-date {
+  font-family: var(--font-pixel);
+  font-size: 10px;
+  color: #777;
+  margin-top: 6px;
+  text-align: right;
+}
+
+#new-note-form {
+  display: flex;
+  gap: 6px;
+}
+
+#new-note-form .pixel-input {
+  margin-bottom: 0;
+}
+
+/* ========================================================
+   Dükkan / Dekorasyon Modalı
+   ======================================================== */
+
+.shop-modal-content {
+  width: 540px;
+  max-height: 85vh;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+.shop-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.shop-header h3 {
+  font-family: var(--font-pixel);
+  font-size: 18px;
+}
+
+.shop-balance {
+  font-family: var(--font-retro);
+  font-size: 11px;
+  color: #c2255c;
+  background: #ffe3e8;
+  border: 1px solid #f06595;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-weight: bold;
+}
+
+.shop-subtitle {
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  color: var(--wood-light);
+  margin-bottom: 16px;
+}
+
+.shop-items-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  overflow-y: auto;
+  max-height: 320px;
+  padding: 4px;
+}
+
+.shop-card {
+  background: var(--parchment-dark);
+  border: 2px solid var(--wood-mid);
+  border-radius: 4px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 1px 2px 0 var(--wood-border);
+}
+
+.shop-card-icon {
+  font-size: 26px;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.shop-card-name {
+  font-family: var(--font-pixel);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--wood-dark);
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.shop-card-desc {
+  font-family: var(--font-pixel);
+  font-size: 12px;
+  color: #5c3a21;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.shop-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.shop-cost {
+  font-family: var(--font-retro);
+  font-size: 10px;
+  color: #c2255c;
+  font-weight: bold;
+}
+
+.shop-btn-unlocked {
+  background: #d4edda;
+  border: 1px solid #28a745;
+  color: #155724;
+  padding: 4px 8px;
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  border-radius: 2px;
+}
+
+/* ========================================================
+   Masadayken Canlı Çalışma Kontrol Paneli (Active HUD)
+   ======================================================== */
+
+.study-active-hud {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 20px;
+  background: #fffdf5;
+  border-color: #633617;
+  z-index: 25;
+  animation: popIn 0.3s ease-out;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+}
+
+.study-active-hud.hidden {
+  display: none;
+}
+
+.study-hud-portrait-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 2px solid var(--gold);
+  background: var(--wood-dark);
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.study-hud-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.study-hud-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.study-subject-label {
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--wood-dark);
+}
+
+.study-timer {
+  font-family: var(--font-retro);
+  font-size: 15px;
+  color: #c0392b;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.study-hud-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.pixel-btn-action {
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border: 2px solid var(--wood-border);
+  cursor: pointer;
+  border-radius: 3px;
+  box-shadow: 1px 2px 0 var(--wood-border);
+  transition: transform 0.08s;
+}
+
+.pixel-btn-action:hover {
+  transform: translateY(-1px);
+}
+
+.pixel-btn-action.pause {
+  background: #ffe066;
+  color: #5c3a00;
+}
+
+.pixel-btn-action.stop {
+  background: #ff6b6b;
+  color: #fff;
+}
+
+/* ========================================================
+   Kutlama / Seans Sonu Bildirimi
+   ======================================================== */
+
+.celebration-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(14, 8, 6, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 95;
+  backdrop-filter: blur(2px);
+}
+
+.celebration-overlay.hidden {
+  display: none;
+}
+
+.celebration-box {
+  width: 440px;
+  padding: 28px;
+  text-align: center;
+  animation: popIn 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.celebration-box h2 {
+  font-family: var(--font-pixel);
+  font-size: 24px;
+  color: #2b8a3e;
+  margin-bottom: 12px;
+}
+
+.celebration-box p {
+  font-family: var(--font-pixel);
+  font-size: 15px;
+  margin-bottom: 10px;
+  color: var(--wood-dark);
+}
+
+.hearts-earned-text {
+  font-family: var(--font-retro);
+  font-size: 13px;
+  color: #c2255c;
+  font-weight: bold;
+}
+
+.hearts-animation {
+  font-size: 26px;
+  margin: 14px 0 18px;
+  animation: bounce 0.6s infinite alternate;
+}
+
+/* ========================================================
+   Animasyonlar
+   ======================================================== */
+
+@keyframes popIn {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+
+/* ========================================================
+   Kompakt Masaüstü Yoldaşı Modu (Mini-Companion Mode)
+   ======================================================== */
+
+body.mini-mode {
+  background: transparent !important;
+  overflow: visible !important;
+}
+
+body.mini-mode #game-container {
+  position: fixed !important;
+  left: -9999px !important;
+  top: 0 !important;
+  width: 640px !important;
+  height: 400px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: -9999 !important;
+}
+
+body.mini-mode #mini-companion-widget {
+  display: flex !important;
+}
+
+#mini-companion-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 280px;
+  background: var(--parchment);
+  border: 4px solid var(--wood-mid);
+  outline: 3px solid var(--wood-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55), var(--pixel-shadow);
+  border-radius: 6px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px 10px;
+  animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  user-select: none;
+}
+
+#mini-companion-widget.hidden {
+  display: none !important;
+}
+
+.mini-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 4px 6px;
+  border-bottom: 2px solid var(--wood-light);
+  margin-bottom: 6px;
+  cursor: grab;
+}
+
+.mini-title-drag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-retro);
+  font-size: 11px;
+  color: var(--wood-dark);
+  font-weight: bold;
+}
+
+.mini-pulse-dot {
+  color: #2b8a3e;
+  font-size: 10px;
+  animation: bounce 1s infinite alternate;
+}
+
+.mini-header-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.mini-btn-icon {
+  background: var(--parchment-dark);
+  border: 1px solid var(--wood-mid);
+  color: var(--wood-dark);
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.mini-btn-icon:hover {
+  background: var(--gold);
+  transform: translateY(-1px);
+}
+
+.mini-canvas-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background: #2a1810;
+  border: 2px solid var(--wood-mid);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+  margin-bottom: 6px;
+}
+
+#mini-table-canvas {
+  width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  display: block;
+}
+
+.mini-study-info {
+  background: var(--parchment-dark);
+  border: 1px solid var(--wood-light);
+  border-radius: 4px;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mini-subject-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mini-subject-badge {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wood-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 165px;
+}
+
+.mini-timer-display {
+  font-family: var(--font-retro);
+  font-size: 13px;
+  color: #c0392b;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.mini-study-btns {
+  display: flex;
+  gap: 6px;
+}
+
+.mini-study-btns .pixel-btn-tiny {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 6px;
+  background: var(--parchment);
+  border: 1px solid var(--wood-border);
+  color: var(--wood-dark);
+  cursor: pointer;
+  border-radius: 3px;
+  box-shadow: 1px 1px 0 var(--wood-border);
+  transition: transform 0.08s, background-color 0.1s;
+}
+
+.mini-study-btns .pixel-btn-tiny:hover {
+  transform: translateY(-1px);
+  background: var(--gold);
+}
+
+.mini-study-btns .pixel-btn-tiny.pause {
+  background: #fff3cd;
+  color: #856404;
+  border-color: #ffeeba;
+}
+
+.mini-study-btns .pixel-btn-tiny.stop {
+  background: #ff6b6b;
+  color: #fff;
+  border-color: #c92a2a;
+}
+
+.mini-study-btns .pixel-btn-tiny.stop:hover {
+  background: #fa5252;
+}
+
+.mini-study-btns .pixel-btn-tiny.hidden {
+  display: none !important;
+}
+
+.mini-quick-emotes {
+  display: flex;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.mini-emote-btn {
+  flex: 1;
+  background: #fffdf5;
+  border: 1px solid var(--wood-mid);
+  border-radius: 3px;
+  padding: 4px 2px;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 1px 1px 0 var(--wood-border);
+  transition: transform 0.1s, background-color 0.1s;
+}
+
+.mini-emote-btn:hover {
+  transform: scale(1.15);
+  background: #ffe3e8;
+  z-index: 2;
+}
+
+/* Otomatik Responsive Küçülme */
+@media (max-width: 540px), (max-height: 480px) {
+  #game-container {
+    display: none !important;
+  }
+  #mini-companion-widget {
+    display: flex !important;
+    position: static;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    padding: 10px;
+  }
+}
+
+/* ========================================================
+   Çift Etkileşimi: Hızlı Katılma, Kahve İkramı & Masa Post-It Notu
+   ======================================================== */
+.quick-join-btn {
+  background: #2e7d32;
+  color: #fffef2;
+  border: 1px solid #1b5e20;
+  border-radius: 4px;
+  padding: 3px 9px;
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 8px;
+  box-shadow: 1px 1px 0 #0f3d13;
+  transition: transform 0.15s, background-color 0.15s;
+  animation: pulseJoin 2.5s infinite;
+}
+
+.quick-join-btn:hover {
+  background: #388e3c;
+  transform: scale(1.06);
+}
+
+@keyframes pulseJoin {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.6); }
+  50% { box-shadow: 0 0 0 5px rgba(46, 125, 50, 0); }
+}
+
+.pixel-btn-action.coffee {
+  background: #d97706;
+  color: #fffef2;
+  border-color: #92400e;
+}
+.pixel-btn-action.coffee:hover {
+  background: #b45309;
+}
+
+.pixel-btn-action.note {
+  background: #eab308;
+  color: #451a03;
+  border-color: #ca8a04;
+}
+.pixel-btn-action.note:hover {
+  background: #facc15;
+}
+
+/* Masa Post-It Aşk Notu Modalı */
+.desk-note-box {
+  max-width: 400px;
+  width: 90%;
+  background: #fffbeb;
+  border: 3px solid #b45309;
+  border-radius: 6px;
+  box-shadow: 4px 4px 0 #78350f;
+  padding: 18px;
+}
+
+.desk-note-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  border-bottom: 2px dashed #fde68a;
+  padding-bottom: 8px;
+}
+
+.desk-note-header h3 {
+  font-family: var(--font-pixel);
+  font-size: 16px;
+  color: #78350f;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.desk-note-paper {
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.desk-note-content {
+  font-family: 'Comic Sans MS', 'Chalkboard SE', cursive, sans-serif;
+  font-size: 15px;
+  color: #451a03;
+  line-height: 1.5;
+  font-style: italic;
+  margin-bottom: 8px;
+  word-break: break-word;
+}
+
+.desk-note-author {
+  font-family: var(--font-pixel);
+  font-size: 11px;
+  color: #92400e;
+  text-align: right;
+}
+
+/* Cozy Toast Bildirim Pop-up'ı */
+.cozy-toast {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  background: rgba(30, 20, 15, 0.95);
+  border: 2px solid #f59e0b;
+  color: #fffbeb;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-family: var(--font-pixel);
+  font-size: 13px;
+  z-index: 10000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  text-align: center;
+  max-width: 90vw;
+}
+
+.cozy-toast.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Şifre Doğrulama Kapısı (Auth Modal) */
+.auth-box {
+  max-width: 360px;
+  width: 90%;
+  background: var(--parchment, #fdf8eb);
+  border: 3px solid var(--wood-dark, #3b2210);
+  border-radius: 6px;
+  box-shadow: 4px 4px 0 #2a1508;
+  padding: 24px 20px;
+  text-align: center;
+}

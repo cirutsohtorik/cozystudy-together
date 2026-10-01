@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CozyStudy: Kayan Mini Yoldaş</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: var(--parchment, #fdf6e2);
+      overflow: hidden;
+      user-select: none;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Pixelify Sans', var(--font-pixel), sans-serif;
+    }
+    .standalone-mini-card {
+      width: 100%;
+      height: 100%;
+      border: 3px solid var(--wood-mid, #8b5a2b);
+      outline: 2px solid var(--wood-border, #4a2810);
+      background: var(--parchment, #fdf6e2);
+      display: flex;
+      flex-direction: column;
+      padding: 6px 8px 8px;
+    }
+    .standalone-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 4px;
+      border-bottom: 2px solid var(--wood-light, #c49a6c);
+      margin-bottom: 6px;
+    }
+    .standalone-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--wood-dark, #3b2210);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .mini-pulse-dot {
+      color: #27ae60;
+      font-size: 11px;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+    .close-btn {
+      background: var(--parchment-dark, #eedbb5);
+      border: 1px solid var(--wood-mid, #8b5a2b);
+      color: var(--wood-dark, #3b2210);
+      font-size: 11px;
+      font-weight: bold;
+      padding: 1px 6px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    .close-btn:hover {
+      background: #e74c3c;
+      color: #fff;
+    }
+
+    /* Oyun Tuvali Çerçevesi */
+    .mini-canvas-container {
+      position: relative;
+      width: 100%;
+      flex: 1;
+      min-height: 150px;
+      border: 2px solid var(--wood-border, #4a2810);
+      border-radius: 4px;
+      overflow: hidden;
+      background: #1a1a1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #mini-table-canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      display: block;
+    }
+
+    /* Durum Bilgisi ve Sayaç */
+    .mini-study-info {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 6px;
+      padding: 5px 8px;
+      background: rgba(139, 90, 43, 0.08);
+      border-radius: 4px;
+      border: 1px solid rgba(139, 90, 43, 0.2);
+    }
+    .mini-subject-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .mini-subject-badge {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--wood-dark, #3b2210);
+      max-width: 160px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .mini-subject-badge.standing {
+      color: #7f8c8d;
+      font-style: italic;
+      font-weight: 600;
+    }
+    .mini-timer-display {
+      font-family: 'VT323', monospace;
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--wood-dark, #3b2210);
+      letter-spacing: 1px;
+    }
+
+    /* Buton Çubuğu */
+    .mini-study-btns {
+      display: flex;
+      gap: 6px;
+    }
+    .pixel-btn-action {
+      flex: 1;
+      padding: 5px 6px;
+      font-family: 'Pixelify Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 2px solid var(--wood-border, #4a2810);
+      background: #e67e22;
+      color: #fff;
+      border-radius: 3px;
+      text-align: center;
+      transition: all 0.1s;
+    }
+    .pixel-btn-action:hover:not(:disabled) {
+      background: #d35400;
+      transform: translateY(-1px);
+    }
+    .pixel-btn-action:disabled {
+      background: #bdc3c7;
+      border-color: #95a5a6;
+      color: #7f8c8d;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .pixel-btn-action.pause {
+      background: #3498db;
+    }
+    .pixel-btn-action.pause:hover {
+      background: #2980b9;
+    }
+    .pixel-btn-action.stop {
+      background: #e74c3c;
+      flex: 0 0 65px;
+    }
+    .pixel-btn-action.stop:hover {
+      background: #c0392b;
+    }
+    .pixel-btn-action.coffee {
+      background: #d97706;
+      border-color: #92400e;
+      flex: 0 0 36px;
+      padding: 5px 2px;
+      font-size: 14px;
+    }
+    .pixel-btn-action.coffee:hover {
+      background: #b45309;
+    }
+    .pixel-btn-action.note {
+      background: #eab308;
+      border-color: #ca8a04;
+      color: #451a03;
+      flex: 0 0 36px;
+      padding: 5px 2px;
+      font-size: 14px;
+    }
+    .pixel-btn-action.note:hover {
+      background: #facc15;
+    }
+
+    /* Hızlı Emojiler */
+    .mini-quick-emotes {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      gap: 4px;
+    }
+    .mini-emote-btn {
+      flex: 1;
+      padding: 4px 0;
+      font-size: 16px;
+      background: var(--parchment-dark, #eedbb5);
+      border: 1px solid var(--wood-mid, #8b5a2b);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform 0.1s, background 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mini-emote-btn:hover {
+      transform: scale(1.18);
+      background: #fff;
+    }
+    .mini-emote-btn:active {
+      transform: scale(0.95);
+    }
+
+    .disconnected-banner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.88);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 12px;
+      font-size: 13px;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div class="standalone-mini-card">
+    <!-- Üst Başlık -->
+    <div class="standalone-header">
+      <div class="standalone-title">
+        <span class="mini-pulse-dot">●</span>
+        <span id="mini-room-title">🏫 Sınıf & Kütüphane</span>
+      </div>
+      <button class="close-btn" title="Pencereyi Kapat" onclick="window.close()">✕</button>
+    </div>
+
+    <!-- Canlı Birebir Tuval -->
+    <div class="mini-canvas-container">
+      <canvas id="mini-table-canvas" width="280" height="168"></canvas>
+      <div id="disconnected-notice" class="disconnected-banner" style="display: none;">
+        <p>⚠️ Ana oyun sekmesine bağlanılıyor...</p>
+        <p style="margin-top: 6px; font-size: 11px; color: #ccc;">Lütfen ana oyunu kapatmayın.</p>
+      </div>
+    </div>
+
+    <!-- Çalışma Bilgisi & Sayaç -->
+    <div class="mini-study-info">
+      <div class="mini-subject-row">
+        <span class="mini-subject-badge standing" id="mini-study-topic">🪑 Masada Değilsiniz</span>
+        <span class="mini-timer-display" id="mini-study-timer">00:00:00</span>
+      </div>
+      <div class="mini-study-btns">
+        <button id="mini-btn-study" class="pixel-btn-action" disabled onclick="handleStudyClick()">
+          🪑 Masaya Oturun [E]
+        </button>
+        <button id="mini-btn-coffee" class="pixel-btn-action coffee" style="display: none;" title="Sevgiline kahve ikram et" onclick="handleMiniCoffee()">☕</button>
+        <button id="mini-btn-note" class="pixel-btn-action note" style="display: none;" title="Masaya aşk notu iliştir" onclick="handleMiniNote()">📝</button>
+        <button id="mini-btn-stop" class="pixel-btn-action stop" style="display: none;" onclick="handleStopStudy()">
+          ⏹️ Bitir
+        </button>
+      </div>
+    </div>
+
+    <!-- 5'li Senkronize Emoji Çubuğu -->
+    <div class="mini-quick-emotes">
+      <button class="mini-emote-btn" onclick="sendQuickEmote('heart')" title="Sevgi Gönder">❤️</button>
+      <button class="mini-emote-btn" onclick="sendQuickEmote('coffee')" title="Kahve Ismarla">☕</button>
+      <button class="mini-emote-btn" onclick="sendQuickEmote('cheer')" title="Tebrik Et">🎉</button>
+      <button class="mini-emote-btn" onclick="sendQuickEmote('sparkle')" title="Işıltı Saç">✨</button>
+      <button class="mini-emote-btn" onclick="sendQuickEmote('sleep')" title="Uykulu / Mola">💤</button>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // CozyStudy Birebir Canlı Tuval Yansıtıcı (Direct Camera Zoom onto Game.canvas)
+    // =========================================================================
+    const canvas = document.getElementById('mini-table-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+
+    const noticeEl = document.getElementById('disconnected-notice');
+    const roomTitleEl = document.getElementById('mini-room-title');
+    const topicEl = document.getElementById('mini-study-topic');
+    const timerEl = document.getElementById('mini-study-timer');
+    const studyBtn = document.getElementById('mini-btn-study');
+    const stopBtn = document.getElementById('mini-btn-stop');
+    const coffeeBtn = document.getElementById('mini-btn-coffee');
+    const noteBtn = document.getElementById('mini-btn-note');
+
+    const ROOM_NAMES = {
+      classroom: '🏫 Sınıf & Kütüphane',
+      cafe: '☕ Cozy Kafe',
+      garden: '🌸 Huzur Bahçesi'
+    };
+
+    function getGame() {
+      try {
+        if (window.openerGame && window.openerGame.canvas) return window.openerGame;
+        if (window.opener && !window.opener.closed) {
+          if (window.opener.Game && window.opener.Game.canvas) return window.opener.Game;
+          if (window.opener.openerGame && window.opener.openerGame.canvas) return window.opener.openerGame;
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    function getNetwork() {
+      try {
+        if (window.openerNetwork) return window.openerNetwork;
+        if (window.opener && !window.opener.closed && window.opener.Network) {
+          return window.opener.Network;
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    function getUI() {
+      try {
+        if (window.openerUI) return window.openerUI;
+        if (window.opener && !window.opener.closed && window.opener.UI) {
+          return window.opener.UI;
+        }
+      } catch (_) {}
+      return null;
+    }
+
+    // 1. Emoji Gönderme
+    window.sendQuickEmote = function(type) {
+      try {
+        const net = getNetwork();
+        if (net && net.sendEmote) {
+          net.sendEmote(type);
+        } else if (window.opener && window.opener.sendEmote) {
+          window.opener.sendEmote(type);
+        }
+        if (window.opener && window.opener.soundFX && window.opener.soundFX.playPop) {
+          window.opener.soundFX.playPop();
+        }
+      } catch (err) {
+        console.warn('Emoji gönderilemedi:', err);
+      }
+    };
+
+    // 2. Çalışma Butonuna Tıklama (Mola / Devam veya İpucu)
+    window.handleStudyClick = function() {
+      try {
+        const game = getGame();
+        const net = getNetwork();
+        if (!game) return;
+        const player = game.localPlayer;
+        if (!player || !player.isSitting) {
+          alert('Lütfen oyunda bir masaya yaklaşıp [E] tuşuna basarak konunuzu seçin ve masaya oturun!');
+          return;
+        }
+
+        const ui = getUI();
+        if (ui && ui.togglePauseStudy) {
+          ui.togglePauseStudy();
+        } else if (window.opener && window.opener.togglePauseStudy) {
+          window.opener.togglePauseStudy();
+        } else if (net && net.togglePause) {
+          net.togglePause();
+        }
+      } catch (err) {
+        console.warn('Çalışma eylemi hatası:', err);
+      }
+    };
+
+    // 3. Çalışmayı Bitirme Butonu
+    window.handleStopStudy = function() {
+      try {
+        const ui = getUI();
+        if (ui && ui.endStudySession) {
+          ui.endStudySession();
+        } else if (window.opener && window.opener.endStudySession) {
+          window.opener.endStudySession();
+        }
+      } catch (err) {
+        console.warn('Çalışma bitirme hatası:', err);
+      }
+    };
+
+    // 3.5. Mini Pencereden Kahve Ismarlama & Masaya Not Bırakma
+    window.handleMiniCoffee = function() {
+      try {
+        const ui = getUI();
+        if (ui && ui.serveCoffeeToPartner) {
+          ui.serveCoffeeToPartner();
+        } else if (window.opener && window.opener.serveCoffeeToPartner) {
+          window.opener.serveCoffeeToPartner();
+        } else {
+          const net = getNetwork();
+          if (net && net.sendServeCoffee) net.sendServeCoffee();
+        }
+      } catch (err) {
+        console.warn('Mini kahve hatası:', err);
+      }
+    };
+
+    window.handleMiniNote = function() {
+      try {
+        const text = prompt('Sevgiline masaya bırakılacak tatlı bir aşk notu yaz:');
+        if (text && text.trim()) {
+          const net = getNetwork();
+          if (net && net.sendDeskNote) {
+            net.sendDeskNote(text.trim());
+          } else if (window.opener && window.opener.Network && window.opener.Network.sendDeskNote) {
+            window.opener.Network.sendDeskNote(text.trim());
+          }
+        }
+      } catch (err) {
+        console.warn('Mini not hatası:', err);
+      }
+    };
+
+    // 4. Durum Senkronizasyonu (Her 200ms)
+    function syncState() {
+      const game = getGame();
+
+      if (!game || !game.canvas) {
+        if (noticeEl) noticeEl.style.display = 'flex';
+        return;
+      }
+      if (noticeEl) noticeEl.style.display = 'none';
+
+      const player = game.localPlayer;
+
+      // Oda başlığı
+      const room = game.currentRoom || 'classroom';
+      if (roomTitleEl) roomTitleEl.textContent = ROOM_NAMES[room] || '🏫 Sınıf & Kütüphane';
+
+      if (!player || !player.isSitting) {
+        // OYUNCU AYAKTA / MASADA DEĞİL
+        if (topicEl) {
+          topicEl.textContent = '🪑 Masada Değilsiniz';
+          topicEl.className = 'mini-subject-badge standing';
+        }
+        if (timerEl) timerEl.textContent = '00:00:00';
+        if (studyBtn) {
+          studyBtn.disabled = true;
+          studyBtn.textContent = '🪑 Masaya Oturun [E]';
+          studyBtn.className = 'pixel-btn-action';
+          studyBtn.title = 'Oyunda bir masaya yaklaşıp [E] ile konu seçerek oturun';
+        }
+        if (stopBtn) stopBtn.style.display = 'none';
+        if (coffeeBtn) coffeeBtn.style.display = 'none';
+        if (noteBtn) noteBtn.style.display = 'none';
+      } else {
+        // OYUNCU MASADA OTURUYOR
+        if (stopBtn) stopBtn.style.display = 'block';
+        if (coffeeBtn) coffeeBtn.style.display = 'block';
+        if (noteBtn) noteBtn.style.display = 'block';
+        const topic = player.studyTopic || 'Ders Çalışma';
+        if (topicEl) {
+          topicEl.textContent = `📖 ${topic}`;
+          topicEl.className = 'mini-subject-badge';
+        }
+
+        // Sayaç Hesabı (Mola durumunda donar, devamda akar)
+        if (player.studyStartTime) {
+          const baseSeconds = player.studyElapsedSeconds || 0;
+          const additional = player.isPaused ? 0 : Math.floor((Date.now() - (player.studyActiveSince || player.studyStartTime || Date.now())) / 1000);
+          const elapsed = baseSeconds + Math.max(0, additional);
+          if (player.studyMode === 'pomodoro') {
+            const total = 25 * 60;
+            const remaining = Math.max(0, total - elapsed);
+            const mins = String(Math.floor(remaining / 60)).padStart(2, '0');
+            const secs = String(remaining % 60).padStart(2, '0');
+            if (timerEl) timerEl.textContent = `${mins}:${secs}`;
+          } else {
+            const hrs = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+            const mins = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+            const secs = String(elapsed % 60).padStart(2, '0');
+            if (timerEl) timerEl.textContent = `${hrs}:${mins}:${secs}`;
+          }
+        }
+
+        // Butonlar
+        if (studyBtn) {
+          studyBtn.disabled = false;
+          if (player.isPaused) {
+            studyBtn.textContent = '▶️ Devam Et';
+            studyBtn.className = 'pixel-btn-action pause';
+          } else {
+            studyBtn.textContent = '☕ Mola Ver';
+            studyBtn.className = 'pixel-btn-action';
+          }
+        }
+        if (stopBtn) stopBtn.style.display = 'block';
+      }
+    }
+
+    setInterval(syncState, 200);
+
+    // 5. Birebir Oyun Ekranı Çizim Döngüsü (Camera Zoom onto Game.canvas)
+    const CROP_W = 168;
+    const CROP_H = 100;
+
+    function renderMiniFeed() {
+      try {
+        const game = getGame();
+        if (game && game.canvas) {
+          const parentCanvas = game.canvas;
+          const player = game.localPlayer;
+
+          let targetX = 320;
+          let targetY = 200;
+
+          if (player) {
+            targetX = (typeof player.x === 'number') ? (player.x + 12) : 320;
+            targetY = (typeof player.y === 'number') ? (player.y + 12) : 200;
+          }
+
+          const cropX = Math.max(0, Math.min(640 - CROP_W, Math.round(targetX - (CROP_W / 2))));
+          const cropY = Math.max(0, Math.min(400 - CROP_H, Math.round(targetY - (CROP_H / 2))));
+
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(
+            parentCanvas,
+            cropX, cropY, CROP_W, CROP_H,
+            0, 0, canvas.width, canvas.height
+          );
+        }
+      } catch (err) {}
+
+      requestAnimationFrame(renderMiniFeed);
+    }
+
+    // Başlat
+    syncState();
+    requestAnimationFrame(renderMiniFeed);
+  </script>
+</body>
+</html>

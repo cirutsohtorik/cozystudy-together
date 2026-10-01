@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LPC Character Compositor Test</title>
+  <style>
+    body { background: #1a1a2e; color: #fff; font-family: monospace; padding: 20px; }
+    canvas { border: 2px solid #555; background: rgba(0,0,0,0.5); image-rendering: pixelated; margin: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Can & Sezen LPC Character Compositor Test</h1>
+  <div id="status">Loading images...</div>
+  <div>
+    <h3>Can Walk Cycle (4 directions x 9 frames)</h3>
+    <canvas id="can_walk" width="576" height="256"></canvas>
+  </div>
+  <div>
+    <h3>Sezen Walk Cycle (4 directions x 9 frames)</h3>
+    <canvas id="sezen_walk" width="576" height="256"></canvas>
+  </div>
+  <div>
+    <h3>Can Sit</h3>
+    <canvas id="can_sit" width="576" height="256"></canvas>
+  </div>
+  <div>
+    <h3>Sezen Sit</h3>
+    <canvas id="sezen_sit" width="576" height="256"></canvas>
+  </div>
+
+  <script>
+    function loadImage(url) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = (e) => reject(new Error('Failed to load: ' + url));
+        img.src = url;
+      });
+    }
+
+    function tintLayer(img, hexColor) {
+      const c = document.createElement('canvas');
+      c.width = img.width;
+      c.height = img.height;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+
+      if (hexColor) {
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.fillStyle = hexColor;
+        ctx.fillRect(0, 0, c.width, c.height);
+
+        ctx.globalCompositeOperation = 'destination-in';
+        ctx.drawImage(img, 0, 0);
+      }
+      return c;
+    }
+
+    async function build() {
+      try {
+        const canImages = await Promise.all([
+          loadImage('/assets/characters/male_walk.png'),
+          loadImage('/assets/characters/male_pants_walk.png'),
+          loadImage('/assets/characters/male_shoes_walk.png'),
+          loadImage('/assets/characters/male_shirt_walk.png'),
+          loadImage('/assets/characters/male_hair_walk.png')
+        ]);
+
+        const canCanvas = document.getElementById('can_walk');
+        const cCtx = canCanvas.getContext('2d');
+        cCtx.drawImage(canImages[0], 0, 0); // body
+        cCtx.drawImage(tintLayer(canImages[1], '#2d3e54'), 0, 0); // pants
+        cCtx.drawImage(tintLayer(canImages[2], '#382519'), 0, 0); // shoes
+        cCtx.drawImage(tintLayer(canImages[3], '#2e6b3f'), 0, 0); // shirt
+        cCtx.drawImage(tintLayer(canImages[4], '#402410'), 0, 0); // hair
+
+        const sezenImages = await Promise.all([
+          loadImage('/assets/characters/female_walk.png'),
+          loadImage('/assets/characters/female_pants_walk.png'),
+          loadImage('/assets/characters/male_shoes_walk.png'),
+          loadImage('/assets/characters/female_shirt_walk.png'),
+          loadImage('/assets/characters/female_hair_walk.png')
+        ]);
+
+        const sezenCanvas = document.getElementById('sezen_walk');
+        const sCtx = sezenCanvas.getContext('2d');
+        sCtx.drawImage(sezenImages[0], 0, 0); // body
+        sCtx.drawImage(tintLayer(sezenImages[1], '#c9a885'), 0, 0); // pants
+        sCtx.drawImage(tintLayer(sezenImages[2], '#523420'), 0, 0); // shoes
+        sCtx.drawImage(tintLayer(sezenImages[3], '#7d53b8'), 0, 0); // shirt
+        sCtx.drawImage(tintLayer(sezenImages[4], '#24171a'), 0, 0); // hair
+
+        // Sit canvases
+        const canSitImages = await Promise.all([
+          loadImage('/assets/characters/male_sit.png'),
+          loadImage('/assets/characters/male_pants_sit.png'),
+          loadImage('/assets/characters/male_shoes_sit.png'),
+          loadImage('/assets/characters/male_shirt_sit.png'),
+          loadImage('/assets/characters/male_hair_sit.png')
+        ]);
+
+        const canSitCanvas = document.getElementById('can_sit');
+        const csCtx = canSitCanvas.getContext('2d');
+        csCtx.drawImage(canSitImages[0], 0, 0);
+        csCtx.drawImage(tintLayer(canSitImages[1], '#2d3e54'), 0, 0);
+        csCtx.drawImage(tintLayer(canSitImages[2], '#382519'), 0, 0);
+        csCtx.drawImage(tintLayer(canSitImages[3], '#2e6b3f'), 0, 0);
+        csCtx.drawImage(tintLayer(canSitImages[4], '#402410'), 0, 0);
+
+        const sezenSitImages = await Promise.all([
+          loadImage('/assets/characters/female_sit.png'),
+          loadImage('/assets/characters/female_pants_sit.png'),
+          loadImage('/assets/characters/male_shoes_sit.png'),
+          loadImage('/assets/characters/female_shirt_sit.png'),
+          loadImage('/assets/characters/female_hair_sit.png')
+        ]);
+
+        const sezenSitCanvas = document.getElementById('sezen_sit');
+        const ssCtx = sezenSitCanvas.getContext('2d');
+        ssCtx.drawImage(sezenSitImages[0], 0, 0);
+        ssCtx.drawImage(tintLayer(sezenSitImages[1], '#c9a885'), 0, 0);
+        ssCtx.drawImage(tintLayer(sezenSitImages[2], '#523420'), 0, 0);
+        ssCtx.drawImage(tintLayer(sezenSitImages[3], '#7d53b8'), 0, 0);
+        ssCtx.drawImage(tintLayer(sezenSitImages[4], '#24171a'), 0, 0);
+
+        document.getElementById('status').textContent = '✅ All character sprite sheets successfully composited!';
+        document.getElementById('status').style.color = '#4cd137';
+      } catch (err) {
+        document.getElementById('status').textContent = '❌ Error: ' + err.message;
+        document.getElementById('status').style.color = '#e84118';
+      }
+    }
+
+    build();
+  </script>
+</body>
+</html>

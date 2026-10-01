@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kenney RPG Urban & Tiny Town Tile Viewer</title>
+  <style>
+    body { background: #222; color: #fff; font-family: monospace; padding: 20px; }
+    h2 { color: #f8cf48; }
+    .grid { display: flex; flex-wrap: wrap; gap: 4px; max-width: 900px; margin-bottom: 30px; }
+    .tile-box { display: flex; flex-direction: column; align-items: center; background: #333; padding: 4px; border-radius: 3px; font-size: 9px; }
+    .tile-box img { width: 32px; height: 32px; image-rendering: pixelated; }
+  </style>
+</head>
+<body>
+  <h2>Tiny Town Tiles (0 to 131)</h2>
+  <div id="tiny-town" class="grid"></div>
+
+  <h2>RPG Urban Tiles (0 to 485)</h2>
+  <div id="rpg-urban" class="grid"></div>
+
+  <script>
+    const tt = document.getElementById('tiny-town');
+    for (let i = 0; i <= 131; i++) {
+      const num = String(i).padStart(4, '0');
+      const box = document.createElement('div');
+      box.className = 'tile-box';
+      box.innerHTML = `<img src="/assets/tilesets/tiny_town/tile_${num}.png"><span>${num}</span>`;
+      tt.appendChild(box);
+    }
+
+    const ru = document.getElementById('rpg-urban');
+    for (let i = 0; i <= 485; i++) {
+      const num = String(i).padStart(4, '0');
+      const box = document.createElement('div');
+      box.className = 'tile-box';
+      box.innerHTML = `<img src="/assets/tilesets/rpg_urban/tile_${num}.png"><span>${num}</span>`;
+      ru.appendChild(box);
+    }
+  </script>
+</body>
+</html>
