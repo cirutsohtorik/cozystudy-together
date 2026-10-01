@@ -1505,14 +1505,23 @@ body.mini-mode #mini-companion-widget {
   transform: translateX(-50%) translateY(0);
 }
 
-/* Şifre Doğrulama Kapısı (Auth Modal) */
+/* Şifre Doğrulama Kapısı (Auth Screen) */
+.auth-screen {
+  z-index: 500 !important;
+}
+
 .auth-box {
-  max-width: 360px;
-  width: 90%;
+  max-width: 420px;
+  width: 92%;
   background: var(--parchment, #fdf8eb);
-  border: 3px solid var(--wood-dark, #3b2210);
+  border: 4px solid var(--wood-mid, #633617);
+  outline: 3px solid var(--wood-border, #1a0d05);
+  box-shadow: 
+    inset 2px 2px 0px rgba(255, 255, 255, 0.8),
+    inset -2px -2px 0px var(--parchment-dark, #ede1c7),
+    var(--pixel-shadow);
   border-radius: 6px;
-  box-shadow: 4px 4px 0 #2a1508;
   padding: 24px 20px;
   text-align: center;
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }

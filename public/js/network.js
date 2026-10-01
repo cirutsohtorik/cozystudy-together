@@ -184,6 +184,7 @@ const Network = {
 
     // Şifre Doğrulama Hatası
     this.socket.on('auth_error', (msg) => {
+      localStorage.removeItem('cozystudy_room_pass');
       if (typeof UI !== 'undefined' && UI.showAuthModal) {
         UI.showAuthModal(msg);
       } else {
@@ -194,10 +195,18 @@ const Network = {
 
   // Eylemler
   chooseCharacter(characterName) {
-    if (!this.socket) return;
+    if (!this.socket) {
+      this.init();
+    }
     window.soundFX.init();
     const password = localStorage.getItem('cozystudy_room_pass') || window._roomPassword || '';
-    this.socket.emit('choose_character', { characterName, password });
+    if (this.socket && this.socket.connected) {
+      this.socket.emit('choose_character', { characterName, password });
+    } else if (this.socket) {
+      this.socket.once('connect', () => {
+        this.socket.emit('choose_character', { characterName, password });
+      });
+    }
   },
 
   sendMove(x, y, direction, isMoving) {

@@ -12,24 +12,27 @@
 </head>
 <body>
 
-  <!-- Özel Çift Şifre Doğrulama Kapısı (Sezen99720.) -->
-  <div id="auth-modal" class="modal-overlay hidden">
+  <!-- 1. En Başta Özel Çift Şifre Doğrulama Kapısı (Sezen99720.) -->
+  <div id="auth-screen" class="overlay-screen auth-screen">
     <div class="pixel-box auth-box">
-      <div class="auth-icon" style="font-size: 32px; margin-bottom: 8px;">🔐</div>
-      <h2 class="pixel-title" style="font-size: 18px; margin-bottom: 6px; color: #4a2810;">Can & Sezen Cozy Odası</h2>
-      <p style="font-size: 13px; color: #5c3214; margin-bottom: 14px; line-height: 1.4;">Burası sadece ikimize özel bir çalışma sığınağıdır 💕<br>Lütfen çift şifresini girin:</p>
+      <div class="hero-banner-box" style="height: 120px; margin-bottom: 14px;">
+        <img src="assets/cozystudy_hero_banner.jpg" alt="CozyStudy Can & Sezen" class="hero-banner-img">
+      </div>
+      <div class="auth-icon" style="font-size: 32px; margin-bottom: 6px;">🔐</div>
+      <h1 class="pixel-title" style="font-size: 18px; margin-bottom: 6px; color: #4a2810;">Can & Sezen Cozy Odası</h1>
+      <p style="font-size: 13px; color: #5c3214; margin-bottom: 14px; line-height: 1.4;">Burası sadece ikimize özel bir çalışma sığınağıdır 💕<br>Lütfen odaya girmek için çift şifresini yazın:</p>
       <form id="auth-form" onsubmit="window.handleAuthSubmit(event)">
-        <input type="password" id="auth-password-input" class="pixel-input" placeholder="Oda Şifresi..." autocomplete="current-password" required />
-        <div style="margin-top: 12px; display: flex; gap: 8px; justify-content: center;">
-          <button type="submit" class="pixel-btn">Odaya Gir 🌸</button>
+        <input type="password" id="auth-password-input" class="pixel-input" placeholder="Oda Şifresi..." autocomplete="current-password" autofocus required />
+        <div style="margin-top: 14px; display: flex; gap: 8px; justify-content: center;">
+          <button type="submit" class="pixel-btn" style="padding: 10px 24px; font-size: 14px;">Odaya Gir 🌸</button>
         </div>
-        <p id="auth-error-msg" class="auth-error hidden" style="color: #c0392b; font-size: 12px; margin-top: 8px; font-weight: bold;">Hatalı şifre! Lütfen tekrar deneyin.</p>
+        <p id="auth-error-msg" class="auth-error hidden" style="color: #c0392b; font-size: 12px; margin-top: 10px; font-weight: bold;">Hatalı şifre! Lütfen tekrar deneyin.</p>
       </form>
     </div>
   </div>
 
-  <!-- Karakter Seçim Ekranı -->
-  <div id="character-select-screen" class="overlay-screen active">
+  <!-- 2. Karakter Seçim Ekranı -->
+  <div id="character-select-screen" class="overlay-screen hidden">
     <div class="pixel-box select-card">
       <div class="hero-banner-box">
         <img src="assets/cozystudy_hero_banner.jpg" alt="CozyStudy Can & Sezen" class="hero-banner-img">

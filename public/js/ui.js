@@ -1051,19 +1051,42 @@ const UI = {
 
   // 5. Özel Çift Şifre Kapısı (Sezen99720.)
   initAuthGate() {
+    const authScreen = document.getElementById('auth-screen');
+    const charScreen = document.getElementById('character-select-screen');
     const savedPass = localStorage.getItem('cozystudy_room_pass');
+
     if (savedPass === 'Sezen99720.') {
-      const modal = document.getElementById('auth-modal');
-      if (modal) modal.classList.add('hidden');
+      // Şifre önceden girilmiş: direkt karakter seçimini göster
+      if (authScreen) authScreen.classList.add('hidden');
+      if (charScreen) {
+        charScreen.classList.remove('hidden');
+        charScreen.classList.add('active');
+      }
     } else {
-      this.showAuthModal();
+      // Şifre henüz girilmemiş: sadece şifre ekranını göster
+      if (authScreen) {
+        authScreen.classList.remove('hidden');
+        authScreen.classList.add('active');
+      }
+      if (charScreen) {
+        charScreen.classList.add('hidden');
+        charScreen.classList.remove('active');
+      }
+      const input = document.getElementById('auth-password-input');
+      if (input) setTimeout(() => input.focus(), 150);
     }
   },
 
   showAuthModal(errorMsg) {
-    const modal = document.getElementById('auth-modal');
-    if (modal) {
-      modal.classList.remove('hidden');
+    const authScreen = document.getElementById('auth-screen');
+    const charScreen = document.getElementById('character-select-screen');
+    if (authScreen) {
+      authScreen.classList.remove('hidden');
+      authScreen.classList.add('active');
+      if (charScreen) {
+        charScreen.classList.add('hidden');
+        charScreen.classList.remove('active');
+      }
       const errEl = document.getElementById('auth-error-msg');
       if (errEl) {
         if (errorMsg) {
@@ -1088,9 +1111,17 @@ const UI = {
     const val = input.value.trim();
     if (val === 'Sezen99720.') {
       localStorage.setItem('cozystudy_room_pass', val);
-      const modal = document.getElementById('auth-modal');
-      if (modal) modal.classList.add('hidden');
-      this.showToast('🌸 Hoş geldiniz! Odaya başarıyla giriş yapıldı.');
+      const authScreen = document.getElementById('auth-screen');
+      const charScreen = document.getElementById('character-select-screen');
+      if (authScreen) {
+        authScreen.classList.add('hidden');
+        authScreen.classList.remove('active');
+      }
+      if (charScreen) {
+        charScreen.classList.remove('hidden');
+        charScreen.classList.add('active');
+      }
+      this.showToast('🌸 Şifre onaylandı! Lütfen karakterini seç.');
     } else {
       this.showAuthModal('Hatalı şifre! Bu oda sadece Can ve Sezen içindir 💕');
     }

@@ -117,7 +117,13 @@ io.on('connection', (socket) => {
     }
 
     if (slots[characterName].occupied && slots[characterName].socketId !== socket.id) {
-      return socket.emit('character_taken', { characterName });
+      const existingSocket = io.sockets.sockets.get(slots[characterName].socketId);
+      if (!existingSocket || !existingSocket.connected) {
+        slots[characterName].occupied = false;
+        slots[characterName].socketId = null;
+      } else {
+        return socket.emit('character_taken', { characterName });
+      }
     }
 
     if (players[socket.id]) {
