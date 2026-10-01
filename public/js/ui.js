@@ -82,7 +82,7 @@ const UI = {
       const myAvatarBox = document.getElementById('hud-my-avatar');
       const myPortraitImg = document.getElementById('hud-my-portrait-img');
       if (myAvatarBox && myPortraitImg) {
-        myPortraitImg.src = Sprites.getPortraitDataUrl(p.name);
+        myPortraitImg.src = p.name === 'Can' ? 'assets/can_portrait.jpg' : 'assets/sezen_portrait.jpg';
         myAvatarBox.style.display = 'flex';
       }
     }
@@ -132,7 +132,7 @@ const UI = {
 
     if (partner) {
       if (partnerImg) {
-        partnerImg.src = Sprites.getPortraitDataUrl(partnerName);
+        partnerImg.src = partnerName === 'Can' ? 'assets/can_portrait.jpg' : 'assets/sezen_portrait.jpg';
         partnerImg.style.display = 'inline-block';
       }
       if (partner.isSitting) {
@@ -220,6 +220,19 @@ const UI = {
     this.currentTableNear = table;
     const modal = document.getElementById('study-modal');
     const badgeEl = document.getElementById('study-modal-room-badge');
+    const bannerImg = document.getElementById('study-modal-banner-img');
+    if (bannerImg) {
+      if (Game.currentRoom === 'classroom') {
+        bannerImg.src = 'assets/cozy_classroom_library.jpg';
+        bannerImg.alt = 'Sınıf & Kütüphane Masası';
+      } else if (Game.currentRoom === 'cafe') {
+        bannerImg.src = 'assets/cozy_coffee_bar.jpg';
+        bannerImg.alt = 'Cozy Kafe Masası';
+      } else {
+        bannerImg.src = 'assets/cozy_garden_gazebo.jpg';
+        bannerImg.alt = 'Bahçe Çardağı';
+      }
+    }
     if (badgeEl) {
       const roomIcons = { classroom: '🏫 Sınıf & Kütüphane', cafe: '☕ Cozy Kafe', garden: '🌸 Bahçe Çardağı' };
       const roomLabel = roomIcons[Game.currentRoom] || '🏡 Çalışma Alanı';
@@ -338,7 +351,7 @@ const UI = {
     if (miniTopicEl) miniTopicEl.textContent = topicText;
 
     if (thumbImg && Network.localPlayer) {
-      thumbImg.src = Sprites.getPortraitDataUrl(Network.localPlayer.name);
+      thumbImg.src = Network.localPlayer.name === 'Can' ? 'assets/can_portrait.jpg' : 'assets/sezen_portrait.jpg';
     }
     if (hud) hud.classList.remove('hidden');
 

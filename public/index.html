@@ -13,9 +13,12 @@
 <body>
 
   <!-- 1. En Başta Özel Çift Şifre Doğrulama Kapısı (Sezen99720.) -->
+  <!-- 1. En Başta Özel Çift Şifre Doğrulama Kapısı (Sezen99720.) -->
   <div id="auth-screen" class="overlay-screen auth-screen">
     <div class="pixel-box auth-box">
-      <div class="auth-icon" style="font-size: 38px; margin-bottom: 8px;">🌸 🔐 ☕</div>
+      <div class="hero-banner-box" style="height: 120px; margin-bottom: 14px;">
+        <img src="assets/cozystudy_hero_banner.jpg" alt="CozyStudy Can & Sezen" class="hero-banner-img" />
+      </div>
       <h1 class="pixel-title" style="font-size: 18px; margin-bottom: 6px; color: #4a2810;">Can & Sezen Cozy Odası</h1>
       <p style="font-size: 13px; color: #5c3214; margin-bottom: 14px; line-height: 1.4;">Burası sadece ikimize özel bir çalışma sığınağıdır 💕<br>Lütfen odaya girmek için çift şifresini yazın:</p>
       <form id="auth-form" onsubmit="window.handleAuthSubmit(event)">
@@ -31,6 +34,9 @@
   <!-- 2. Karakter Seçim Ekranı -->
   <div id="character-select-screen" class="overlay-screen hidden">
     <div class="pixel-box select-card">
+      <div class="hero-banner-box">
+        <img src="assets/cozystudy_hero_banner.jpg" alt="CozyStudy Can & Sezen" class="hero-banner-img" />
+      </div>
       <h1 class="pixel-title">🌸 CozyStudy ☕</h1>
       <p class="pixel-subtitle">Can & Sezen Birlikte Ders Çalışma Oyunu</p>
       
@@ -38,7 +44,7 @@
         <!-- Can Kartı -->
         <div class="character-card" id="slot-can" onclick="window.selectCharacter('Can')">
           <div class="pixel-avatar-box">
-            <canvas id="preview-can" width="64" height="64"></canvas>
+            <img src="assets/can_portrait.jpg" alt="Can" class="card-portrait-img" />
           </div>
           <h2 class="char-name">CAN</h2>
           <span class="status-badge available" id="badge-can">Müsait</span>
@@ -48,7 +54,7 @@
         <!-- Sezen Kartı -->
         <div class="character-card" id="slot-sezen" onclick="window.selectCharacter('Sezen')">
           <div class="pixel-avatar-box">
-            <canvas id="preview-sezen" width="64" height="64"></canvas>
+            <img src="assets/sezen_portrait.jpg" alt="Sezen" class="card-portrait-img" />
           </div>
           <h2 class="char-name">SEZEN</h2>
           <span class="status-badge available" id="badge-sezen">Müsait</span>
@@ -146,6 +152,9 @@
   <!-- Masaya Oturunca Açılan Konu ve Mod Seçim Modalı -->
   <div id="study-modal" class="modal-overlay hidden">
     <div class="pixel-box modal-content">
+      <div class="modal-banner-box">
+        <img id="study-modal-banner-img" src="assets/cozy_classroom_library.jpg" alt="Çalışma Masası" class="modal-banner-img" />
+      </div>
       <div id="study-modal-room-badge" class="study-room-badge">🏫 Sınıf Masası</div>
       <h3 class="modal-title">📖 Ders Çalışma Masası</h3>
       <p class="modal-desc">Şimdi ne çalışacaksın sevgilim?</p>
@@ -199,6 +208,9 @@
   <!-- Dükkan / Dekorasyon Modalı -->
   <div id="shop-modal" class="modal-overlay hidden">
     <div class="pixel-box shop-modal-content">
+      <div class="modal-banner-box">
+        <img src="assets/cozy_coffee_bar.jpg" alt="Cozy Dükkan & Kafe" class="modal-banner-img" />
+      </div>
       <div class="shop-header">
         <h3>🛍️ Cozy Dükkan & Dekorasyon</h3>
         <span class="shop-balance" id="shop-balance-display">Mevcut: 💕 10 Kalp</span>
@@ -215,7 +227,7 @@
   <!-- Masadayken Görünen Canlı Çalışma Kontrol Paneli -->
   <div id="study-active-hud" class="study-active-hud hidden pixel-box">
     <div class="study-hud-portrait-box">
-      <img id="study-hud-char-img" src="" alt="Ders Çalışan" class="study-hud-thumb" />
+      <img id="study-hud-char-img" src="assets/can_portrait.jpg" alt="Ders Çalışan" class="study-hud-thumb" />
     </div>
     <div class="study-hud-info">
       <div class="study-subject-label" id="active-study-subject">📖 Matematik</div>
