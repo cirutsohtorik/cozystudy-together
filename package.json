@@ -8,6 +8,7 @@
     "dev": "node server.js",
     "dev:vite": "vite",
     "build": "vite build",
+    "lint:arch": "depcruise --config .dependency-cruiser.cjs src",
     "share": "npx localtunnel --port 3000"
   },
   "keywords": [
@@ -26,6 +27,7 @@
     "socket.io-client": "^4.8.4"
   },
   "devDependencies": {
+    "dependency-cruiser": "^18.5.0",
     "localtunnel": "^2.0.2",
     "vite": "^8.3.2"
   }
