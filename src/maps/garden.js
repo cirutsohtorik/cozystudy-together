@@ -22,9 +22,9 @@ export const garden = {
       label: 'Kafe ➔'
     },
     {
-      x: 270, y: 360, width: 100, height: 40,
+      x: 260, y: 355, width: 120, height: 45,
       targetRoom: 'campus_path',
-      spawnX: 320, spawnY: 55,
+      spawnX: 320, spawnY: 100,
       label: '▼ Kampüs Yolu'
     }
   ],

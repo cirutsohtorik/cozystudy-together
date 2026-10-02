@@ -10,9 +10,9 @@ export const dorm = {
 
   doors: [
     {
-      x: 260, y: 0, width: 120, height: 85,
+      x: 260, y: 0, width: 120, height: 60,
       targetRoom: 'campus_path',
-      spawnX: 320, spawnY: 330,
+      spawnX: 320, spawnY: 270,
       label: '▲ Kampüs Çıkışı'
     }
   ],

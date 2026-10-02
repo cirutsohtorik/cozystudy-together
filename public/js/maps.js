@@ -280,9 +280,9 @@ const Maps = {
         label: 'Kafe ➔'
       },
       {
-        x: 270, y: 360, width: 100, height: 40,
+        x: 260, y: 355, width: 120, height: 45,
         targetRoom: 'campus_path',
-        spawnX: 320, spawnY: 55,
+        spawnX: 320, spawnY: 100,
         label: '▼ Kampüs Yolu'
       }
     ],
@@ -726,15 +726,15 @@ const Maps = {
 
     doors: [
       {
-        x: 260, y: 0, width: 120, height: 80,
+        x: 260, y: 0, width: 120, height: 60,
         targetRoom: 'garden',
-        spawnX: 320, spawnY: 345,
+        spawnX: 320, spawnY: 290,
         label: '▲ Bahçe'
       },
       {
-        x: 260, y: 340, width: 120, height: 60,
+        x: 260, y: 355, width: 120, height: 45,
         targetRoom: 'dorm',
-        spawnX: 320, spawnY: 100,
+        spawnX: 320, spawnY: 110,
         label: '▼ Can & Sezen Yurdu'
       }
     ],
@@ -863,9 +863,9 @@ const Maps = {
 
     doors: [
       {
-        x: 260, y: 0, width: 120, height: 85,
+        x: 260, y: 0, width: 120, height: 60,
         targetRoom: 'campus_path',
-        spawnX: 320, spawnY: 330,
+        spawnX: 320, spawnY: 270,
         label: '▲ Kampüs Çıkışı'
       }
     ],

@@ -303,6 +303,16 @@ const Game = {
   update(dt, time) {
     if (!this.localPlayer) return;
 
+    if (this.localPlayer.isSleeping) {
+      if (this.keys['KeyW'] || this.keys['w'] || this.keys['ArrowUp'] ||
+          this.keys['KeyS'] || this.keys['s'] || this.keys['ArrowDown'] ||
+          this.keys['KeyA'] || this.keys['a'] || this.keys['ArrowLeft'] ||
+          this.keys['KeyD'] || this.keys['d'] || this.keys['ArrowRight']) {
+        Network.toggleSleep();
+      }
+      return;
+    }
+
     if (this.localPlayer.isSitting || this.localPlayer.isHugging) {
       UI.hideInteractionPrompt();
       UI.hideHugPrompt();
@@ -492,6 +502,7 @@ const Game = {
 
   checkDoors(doors) {
     if (!doors) return;
+    if (this.doorCooldown && Date.now() < this.doorCooldown) return;
     const px = this.localPlayer.x + 8;
     const py = this.localPlayer.y + 24;
 
@@ -515,6 +526,7 @@ const Game = {
           }
         }
 
+        this.doorCooldown = Date.now() + 1500;
         window.soundFX.playDoor();
         this.currentRoom = d.targetRoom;
         this.localPlayer.room = d.targetRoom;
@@ -673,7 +685,11 @@ const Game = {
     }
     this.nearBed = found;
     if (this.nearBed && !this.nearTable) {
-      UI.showInteractionPrompt(`${this.nearBed.name} Dinlen / Uyu 💤`);
+      if (this.localPlayer?.isSleeping) {
+        UI.showInteractionPrompt('Yataktan Kalk / Uyan ☀️');
+      } else {
+        UI.showInteractionPrompt(`${this.nearBed.name} Dinlen / Uyu 💤`);
+      }
     }
   },
 
