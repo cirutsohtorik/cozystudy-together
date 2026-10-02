@@ -10,7 +10,10 @@ const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 const PORT = process.env.PORT || 3000;
 
-app.use(express.static(path.join(__dirname, 'public')));
+const staticDir = fs.existsSync(path.join(__dirname, 'dist')) 
+  ? path.join(__dirname, 'dist') 
+  : path.join(__dirname, 'public');
+app.use(express.static(staticDir));
 
 // Kalıcı İlerleme Dosyası Yolu
 const DATA_DIR = path.join(__dirname, 'data');
