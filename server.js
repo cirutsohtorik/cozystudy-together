@@ -509,9 +509,11 @@ io.on('connection', (socket) => {
 
     player.isSleeping = !player.isSleeping;
     if (player.isSleeping) {
-      player.x = player.name === 'Can' ? 64 : 536;
-      player.y = 150;
+      player.x = player.name === 'Can' ? 62 : 554;
+      player.y = 135;
       player.direction = 'down';
+    } else {
+      player.y = 205;
     }
     io.emit('players_sync', players);
     if (player.isSleeping) {
@@ -547,16 +549,17 @@ io.on('connection', (socket) => {
   });
 
   // Retro Radyo / Jukebox İstasyonu Değiştirme
-  socket.on('change_radio_station', ({ stationIndex, stationName }) => {
+  socket.on('change_radio_station', (payload) => {
     const player = players[socket.id];
     if (!player) return;
 
+    const name = typeof payload === 'string' ? payload : (payload?.stationName || payload?.stationIndex || 'Lofi Dreams');
+
     io.emit('radio_station_sync', {
-      stationIndex,
-      stationName,
+      stationName: name,
       changedBy: player.name
     });
-    io.emit('system_message', `📻 ${player.name} radyoda yeni bir istasyon açtı: [${stationName}] 🎵`);
+    io.emit('system_message', `📻 ${player.name} radyoda yeni bir istasyon açtı: [${name}] 🎵`);
   });
 
   // Kedi Pamuk'u Besleme

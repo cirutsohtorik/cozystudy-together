@@ -333,9 +333,11 @@ const Game = {
       let newX = this.localPlayer.x + (dx * speed);
       let newY = this.localPlayer.y + (dy * speed);
 
-      // Ekran sınırlarında tut
+      // Ekran sınırlarında tut (Kuzey kapı açıklıklarında rahatça içeri girilsin)
+      const isNorthDoorArea = newX >= 240 && newX <= 400;
+      const minY = isNorthDoorArea ? 12 : 50;
       newX = Math.max(16, Math.min(600, newX));
-      newY = Math.max(50, Math.min(365, newY));
+      newY = Math.max(minY, Math.min(368, newY));
 
       if (!this.checkCollision(newX, this.localPlayer.y, map.colliders)) {
         this.localPlayer.x = newX;
@@ -1282,7 +1284,9 @@ const Game = {
 
     let spriteImg;
 
-    if (player.isSitting) {
+    if (player.isSleeping && sprites['sleeping']) {
+      spriteImg = sprites['sleeping'];
+    } else if (player.isSitting) {
       spriteImg = sprites['sitting'];
     } else {
       const frames = sprites[dir] || [];
@@ -1296,25 +1300,28 @@ const Game = {
       const drawX = isLPC ? posX - 4 : posX;
       const drawY = isLPC ? posY - 10 : posY;
 
-      const isIdle = !player.isMoving && !player.isSitting;
-      const breathBob = isIdle ? Math.sin(time * 0.004 + (posX * 0.05)) * 0.85 : (player.isSitting ? Math.sin(time * 0.003) * 0.5 : 0);
+      const isIdle = !player.isMoving && !player.isSitting && !player.isSleeping;
+      const breathBob = player.isSleeping ? Math.sin(time * 0.003) * 0.6 : (isIdle ? Math.sin(time * 0.004 + (posX * 0.05)) * 0.85 : (player.isSitting ? Math.sin(time * 0.003) * 0.5 : 0));
 
-      // Çok katmanlı yumuşak zemin gölgesi (Daha derin ve doğal)
-      this.ctx.fillStyle = 'rgba(20, 10, 5, 0.16)';
-      this.ctx.beginPath();
-      this.ctx.ellipse(posX + 12, posY + 31, 10, 4.5, 0, 0, Math.PI * 2);
-      this.ctx.fill();
+      // Yatakta uyurken zemin gölgesi çizilmez, ayaktayken çizilir
+      if (!player.isSleeping) {
+        // Çok katmanlı yumuşak zemin gölgesi (Daha derin ve doğal)
+        this.ctx.fillStyle = 'rgba(20, 10, 5, 0.16)';
+        this.ctx.beginPath();
+        this.ctx.ellipse(posX + 12, posY + 31, 10, 4.5, 0, 0, Math.PI * 2);
+        this.ctx.fill();
 
-      this.ctx.fillStyle = 'rgba(10, 5, 0, 0.30)';
-      this.ctx.beginPath();
-      this.ctx.ellipse(posX + 12, posY + 30, 6, 2.5, 0, 0, Math.PI * 2);
-      this.ctx.fill();
+        this.ctx.fillStyle = 'rgba(10, 5, 0, 0.30)';
+        this.ctx.beginPath();
+        this.ctx.ellipse(posX + 12, posY + 30, 6, 2.5, 0, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
 
       this.ctx.drawImage(spriteImg, drawX, drawY + breathBob);
 
-      // Doğal göz kırpma (Blink) animasyonu
+      // Doğal göz kırpma (Blink) animasyonu (Uykuda gözler kapalıdır)
       const isBlinking = ((Math.floor(time + (player.name === 'Can' ? 0 : 1700))) % 3500) < 120;
-      if (isBlinking && (dir === 'down' || dir === 'left' || dir === 'right') && !player.isSitting) {
+      if (isBlinking && (dir === 'down' || dir === 'left' || dir === 'right') && !player.isSitting && !player.isSleeping) {
         const eyeCover = player.name === 'Can' ? '#c28253' : '#fff0e6';
         this.ctx.fillStyle = eyeCover;
         if (dir === 'down') {

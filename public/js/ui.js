@@ -228,13 +228,22 @@ const UI = {
       } else if (Game.currentRoom === 'cafe') {
         bannerImg.src = 'assets/cozy_coffee_bar.jpg';
         bannerImg.alt = 'Cozy Kafe Masası';
+      } else if (Game.currentRoom === 'dorm') {
+        bannerImg.src = 'assets/cozy_dorm_study.jpg';
+        bannerImg.alt = 'Can & Sezen Yurt Odası Çalışma Masası';
       } else {
         bannerImg.src = 'assets/cozy_garden_gazebo.jpg';
         bannerImg.alt = 'Bahçe Çardağı';
       }
     }
     if (badgeEl) {
-      const roomIcons = { classroom: '🏫 Sınıf & Kütüphane', cafe: '☕ Cozy Kafe', garden: '🌸 Bahçe Çardağı' };
+      const roomIcons = {
+        classroom: '🏫 Sınıf & Kütüphane',
+        cafe: '☕ Cozy Kafe',
+        garden: '🌸 Bahçe Çardağı',
+        dorm: '🛏️ Can & Sezen Yurt Odası',
+        campus_path: '🌳 Kampüs Patikası'
+      };
       const roomLabel = roomIcons[Game.currentRoom] || '🏡 Çalışma Alanı';
       const tableName = table?.name ? ` • ${table.name}` : '';
       badgeEl.textContent = `${roomLabel}${tableName}`;
@@ -1397,4 +1406,8 @@ window.submitGift = () => UI.submitGift();
 window.takePolaroidSnapshot = () => UI.takePolaroidSnapshot();
 window.closePolaroidModal = () => UI.closePolaroidModal();
 window.downloadPolaroidPhoto = () => UI.downloadPolaroidPhoto();
+window.logoutAuth = () => {
+  try { localStorage.removeItem('cozystudy_room_pass'); } catch (e) {}
+  location.reload();
+};
 

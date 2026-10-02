@@ -86,7 +86,10 @@ const Network = {
           Game.localPlayer.studyMode = serverMe.studyMode;
           Game.localPlayer.tableId = serverMe.tableId;
           Game.localPlayer.isHugging = serverMe.isHugging;
-          Game.localPlayer.heldItem = serverMe.heldItem;
+          if (Game.localPlayer.isSleeping !== serverMe.isSleeping) {
+            Game.localPlayer.x = serverMe.x;
+            Game.localPlayer.y = serverMe.y;
+          }
           Game.localPlayer.isSleeping = serverMe.isSleeping;
           Game.localPlayer.studyElapsedSeconds = serverMe.studyElapsedSeconds || 0;
           Game.localPlayer.studyActiveSince = serverMe.studyActiveSince || serverMe.studyStartTime || Date.now();
@@ -217,8 +220,8 @@ const Network = {
 
     // Radyo İstasyonu Senkronizasyonu
     this.socket.on('radio_station_sync', (data) => {
-      if (window.soundFX && window.soundFX.playCupChime) {
-        window.soundFX.playCupChime();
+      if (window.soundFX && window.soundFX.setRadioStation) {
+        window.soundFX.setRadioStation(data.stationName);
       }
       UI.addChatMessage('📻 RADYO', `[${data.stationName}] çalıyor... (Açan: ${data.changedBy})`, '#d97706');
       if (typeof UI !== 'undefined' && UI.updateRadioStationBadge) {
@@ -379,9 +382,9 @@ const Network = {
     this.socket.emit('throw_wishing_coin');
   },
 
-  changeRadioStation(stationIndex, stationName) {
+  changeRadioStation(stationName) {
     if (!this.socket || !this.localPlayer) return;
-    this.socket.emit('change_radio_station', { stationIndex, stationName });
+    this.socket.emit('change_radio_station', { stationName });
   },
 
   feedCat() {

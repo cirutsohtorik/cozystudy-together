@@ -21,6 +21,9 @@ export function openStudyModal(table) {
     } else if (curRoom === 'cafe') {
       bannerImg.src = 'assets/cozy_coffee_bar.jpg';
       bannerImg.alt = 'Cozy Kafe Masası';
+    } else if (curRoom === 'dorm') {
+      bannerImg.src = 'assets/cozy_dorm_study.jpg';
+      bannerImg.alt = 'Can & Sezen Yurt Odası Çalışma Masası';
     } else {
       bannerImg.src = 'assets/cozy_garden_gazebo.jpg';
       bannerImg.alt = 'Bahçe Çardağı';
@@ -28,7 +31,13 @@ export function openStudyModal(table) {
   }
 
   if (badgeEl) {
-    const roomIcons = { classroom: '🏫 Sınıf & Kütüphane', cafe: '☕ Cozy Kafe', garden: '🌸 Bahçe Çardağı' };
+    const roomIcons = {
+      classroom: '🏫 Sınıf & Kütüphane',
+      cafe: '☕ Cozy Kafe',
+      garden: '🌸 Bahçe Çardağı',
+      dorm: '🛏️ Can & Sezen Yurt Odası',
+      campus_path: '🌳 Kampüs Patikası'
+    };
     const roomLabel = roomIcons[curRoom] || '🏡 Çalışma Alanı';
     const tableName = table?.name ? ` • ${table.name}` : '';
     badgeEl.textContent = `${roomLabel}${tableName}`;

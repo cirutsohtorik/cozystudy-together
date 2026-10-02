@@ -79,3 +79,10 @@ export function handleAuthSubmit(e) {
     showAuthModal('Hatalı şifre! Bu oda sadece Can ve Sezen içindir 💕');
   }
 }
+
+export function logoutAuth() {
+  try {
+    localStorage.removeItem('cozystudy_room_pass');
+  } catch (e) {}
+  location.reload();
+}

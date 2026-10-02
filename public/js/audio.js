@@ -705,6 +705,42 @@ class SoundFX {
     } catch (e) {}
   }
 
+  setRadioStation(stationName) {
+    this.currentRadioStation = stationName;
+    if (this.muted || !this.ctx) return;
+    this.playStationJingle(stationName);
+  }
+
+  playStationJingle(stationName) {
+    if (!this.ctx || this.muted) return;
+    this.init();
+    const chords = {
+      'Lofi Dreams': [261.63, 329.63, 392.00, 493.88], // Cmaj7
+      'Cozy Coffee Bar': [220.00, 261.63, 329.63, 392.00], // Am7
+      'Rainy Window Beats': [174.61, 220.00, 261.63, 329.63], // Fmaj7
+      'Midnight Library': [196.00, 246.94, 293.66, 369.99], // Gmaj7
+      'Forest Whispers': [220.00, 277.18, 329.63, 415.30] // A maj7
+    };
+    const notes = chords[stationName] || chords['Lofi Dreams'];
+    notes.forEach((freq, idx) => {
+      setTimeout(() => {
+        if (!this.ctx || this.muted) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(0.04, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 1.2);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 1.25);
+        } catch (e) {}
+      }, idx * 160);
+    });
+  }
+
   startAmbientDetailLoop(roomKey) {
     if (this.detailTimer) clearInterval(this.detailTimer);
     this.detailTimer = setInterval(() => {

@@ -69,6 +69,10 @@
         <p>🐾 Kafedeki kedi Pamuk'u <b>[E]</b> ile sevebilirsiniz.</p>
         <p>💌 Tahtadaki not panosuna birbiriniz için küçük sevgi notları asabilirsiniz.</p>
       </div>
+
+      <div style="text-align: center; margin-top: 14px;">
+        <button type="button" class="pixel-btn cancel" style="font-size: 10px; padding: 5px 12px; opacity: 0.85;" onclick="window.logoutAuth()">🔒 Şifre Ekranına Dön / Çıkış Yap</button>
+      </div>
     </div>
   </div>
 
@@ -85,7 +89,6 @@
         <span class="hud-badge hud-clock" id="hud-clock" title="Kampüs Saati (08:30-16:00 arası ders var)">🕒 08:00</span>
         <span class="hud-badge hud-weather" id="hud-weather" title="Hava Durumu">☀️ Güneşli</span>
         <span class="hud-badge hud-held hidden" id="hud-held-item" title="Eldeki Yiyecek / İçecek">☕</span>
-        <span class="streak-badge" id="hud-streak" title="Günlük Çalışma Serisi">🔥 1 Gün</span>
         <span class="hearts-badge" id="hud-hearts" title="Kazanılan Cozy Kalpler">💕 10</span>
       </div>
       <div class="hud-center" id="hud-partner-status">
@@ -163,7 +166,6 @@
       </div>
       <div id="study-modal-room-badge" class="study-room-badge">🏫 Sınıf Masası</div>
       <h3 class="modal-title">📖 Ders Çalışma Masası</h3>
-      <p class="modal-desc">Şimdi ne çalışacaksın sevgilim?</p>
       
       <!-- Sayaç Modu Seçimi -->
       <div class="timer-mode-selector">

@@ -726,15 +726,15 @@ const Maps = {
 
     doors: [
       {
-        x: 270, y: 0, width: 100, height: 40,
+        x: 260, y: 0, width: 120, height: 80,
         targetRoom: 'garden',
         spawnX: 320, spawnY: 345,
         label: '▲ Bahçe'
       },
       {
-        x: 270, y: 360, width: 100, height: 40,
+        x: 260, y: 340, width: 120, height: 60,
         targetRoom: 'dorm',
-        spawnX: 320, spawnY: 70,
+        spawnX: 320, spawnY: 100,
         label: '▼ Can & Sezen Yurdu'
       }
     ],
@@ -863,17 +863,15 @@ const Maps = {
 
     doors: [
       {
-        x: 270, y: 0, width: 100, height: 45,
+        x: 260, y: 0, width: 120, height: 85,
         targetRoom: 'campus_path',
-        spawnX: 320, spawnY: 340,
+        spawnX: 320, spawnY: 330,
         label: '▲ Kampüs Çıkışı'
       }
     ],
 
     tables: [
-      { id: 'dorm_couple', x: 260, y: 235, width: 96, height: 44, name: 'Can & Sezen Birlikte Gece Çalışma Masası' },
-      { id: 'dorm_can', x: 120, y: 130, width: 64, height: 40, name: 'Can\'ın Bireysel Çalışma Masası' },
-      { id: 'dorm_sezen', x: 456, y: 130, width: 64, height: 40, name: 'Sezen\'in Bireysel Çalışma Masası' }
+      { id: 'dorm_couple', x: 260, y: 235, width: 96, height: 44, name: 'Can & Sezen Birlikte Gece Çalışma Masası' }
     ],
 
     beds: [
@@ -885,8 +883,8 @@ const Maps = {
     jukebox: { x: 400, y: 44, width: 32, height: 32, label: 'Lofi Radyo' },
 
     colliders: [
-      { x: 0, y: 0, width: 270, height: 75 },
-      { x: 370, y: 0, width: 270, height: 75 },
+      { x: 0, y: 0, width: 260, height: 75 },
+      { x: 380, y: 0, width: 260, height: 75 },
       { x: 0, y: 375, width: 640, height: 25 },
       { x: 0, y: 0, width: 24, height: 400 },
       { x: 616, y: 0, width: 24, height: 400 },
@@ -897,8 +895,6 @@ const Maps = {
       { x: 355, y: 40, width: 34, height: 38 }, // Mini buzdolabı
       { x: 40, y: 125, width: 68, height: 75 }, // Can'ın yatağı
       { x: 532, y: 125, width: 68, height: 75 }, // Sezen'in yatağı
-      { x: 120, y: 140, width: 64, height: 26 },
-      { x: 456, y: 140, width: 64, height: 26 },
       { x: 260, y: 245, width: 96, height: 26 }
     ],
 
@@ -1002,6 +998,11 @@ const Maps = {
       }
       if (Sprites.cache['bed_sezen']) {
         ctx.drawImage(Sprites.cache['bed_sezen'], 532, 120);
+      }
+
+      // Büyük Ortak Çalışma Masası
+      if (Sprites.cache['table_dorm_couple']) {
+        ctx.drawImage(Sprites.cache['table_dorm_couple'], 260, 235);
       }
 
       // Kuzey Çıkış Kapısı & Tabela

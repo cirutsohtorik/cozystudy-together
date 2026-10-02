@@ -10,15 +10,15 @@ export const campus_path = {
 
   doors: [
     {
-      x: 270, y: 0, width: 100, height: 40,
+      x: 260, y: 0, width: 120, height: 80,
       targetRoom: 'garden',
       spawnX: 320, spawnY: 345,
       label: '▲ Bahçe'
     },
     {
-      x: 270, y: 360, width: 100, height: 40,
+      x: 260, y: 340, width: 120, height: 60,
       targetRoom: 'dorm',
-      spawnX: 320, spawnY: 70,
+      spawnX: 320, spawnY: 100,
       label: '▼ Can & Sezen Yurdu'
     }
   ],

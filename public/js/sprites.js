@@ -100,6 +100,10 @@ const Sprites = {
     this.cache[name]['sitting'] = this.createPixelCanvas(24, 32, (ctx) => {
       this.renderCharacterSitting(ctx, palette, isCan);
     });
+
+    this.cache[name]['sleeping'] = this.createPixelCanvas(24, 32, (ctx) => {
+      this.renderCharacterSleeping(ctx, palette, isCan);
+    });
   },
 
   renderCharacterFrame(ctx, p, dir, frame, isCan) {
@@ -282,6 +286,60 @@ const Sprites = {
       px(headX + 12, headY + 2, p.ribbon, 3, 3);
       px(headX + 13, headY + 3, '#ffffff', 1, 1);
     }
+  },
+
+  renderCharacterSleeping(ctx, p, isCan) {
+    const px = (x, y, color, w = 1, h = 1) => this.px(ctx, x, y, color, w, h);
+    const headX = 4;
+    const headY = 4;
+
+    // Yastık (Yumuşak beyaz & gölge)
+    px(2, 2, '#cbd5e1', 20, 14);
+    px(3, 3, '#f8fafc', 18, 12);
+    px(5, 5, '#ffffff', 14, 8);
+
+    // Yorgan / Battaniye (Gövdeyi örten sıcak doku)
+    const blanketShadow = isCan ? '#1b4332' : '#5c3a8e';
+    const blanketMain = isCan ? '#2d6a4f' : '#7d53b8';
+
+    px(2, 17, blanketShadow, 20, 15);
+    px(3, 18, blanketMain, 18, 14);
+    // Yorgan üst beyaz kıvrımı
+    px(2, 16, '#cbd5e1', 20, 2);
+    px(3, 15, '#ffffff', 18, 2);
+
+    // Kafa (Yastıkta dinlenen yüz)
+    px(headX + 2, headY + 2, p.skinShadow, 12, 10);
+    px(headX + 3, headY + 2, p.skin, 10, 9);
+
+    // Kapalı uyuyan kirpikler / göz çizgisi (Huzurlu uyku)
+    px(headX + 4, headY + 7, p.hair, 3, 1);
+    px(headX + 9, headY + 7, p.hair, 3, 1);
+    px(headX + 3, headY + 8, p.skinBlush, 3, 2);
+    px(headX + 10, headY + 8, p.skinBlush, 3, 2);
+
+    // Minik tatlı uyku tebessümü
+    px(headX + 7, headY + 9, '#8c3d31', 2, 1);
+
+    // Saçlar
+    if (isCan) {
+      px(headX + 1, headY, p.hair, 14, 4);
+      px(headX + 2, headY, p.hairMid, 12, 3);
+      px(headX + 4, headY + 1, p.hairHighlight, 7, 2);
+      px(headX, headY + 3, p.hair, 3, 5);
+      px(headX + 13, headY + 3, p.hair, 3, 5);
+    } else {
+      px(headX + 1, headY - 1, p.hair, 14, 5);
+      px(headX + 2, headY, p.hairMid, 12, 4);
+      px(headX + 4, headY, p.hairHighlight, 8, 2);
+      // Yastığa yayılan saçlar
+      px(headX - 2, headY + 2, p.hair, 4, 10);
+      px(headX + 14, headY + 2, p.hair, 4, 10);
+      px(headX + 12, headY + 2, p.ribbon, 3, 3);
+    }
+
+    // Yorgan üzerinden çıkan minik el
+    px(headX + 4, 15, p.skin, 3, 2);
   },
 
   // ========================================================
