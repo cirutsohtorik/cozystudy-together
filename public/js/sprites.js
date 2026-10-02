@@ -16,6 +16,9 @@ const Sprites = {
     this.createDecorSprites();
     this.createHugSprite();
     this.createNPCSprites();
+    this.createDormSprites();
+    this.createCampusSprites();
+    this.createItemSprites();
     this.createPortraitSprites();
     if (typeof AssetLoader !== 'undefined') {
       AssetLoader.init();
@@ -1010,10 +1013,414 @@ const Sprites = {
       px(ctx, 17, 6, '#7209b7', 3, 6);
       px(ctx, 6, 2, '#480ca8', 12, 2);
     });
+
+    // 10. Üniversiteli Ayşe (Kampüs Yolunda Kitaplarıyla Yürüyen Öğrenci)
+    this.cache['npc_ayse'] = this.createPixelCanvas(24, 32, (ctx) => {
+      // Bacaklar & Botlar
+      px(ctx, 7, 23, '#2b2d42', 4, 6);
+      px(ctx, 13, 23, '#2b2d42', 4, 6);
+      px(ctx, 6, 28, '#4a2810', 5, 3);
+      px(ctx, 13, 28, '#4a2810', 5, 3);
+      // Bej Trençkot & Bez Çanta
+      px(ctx, 6, 13, '#c9a885', 12, 11);
+      px(ctx, 7, 14, '#dfc5a6', 10, 9);
+      px(ctx, 4, 15, '#e07a5f', 3, 9); // Omuzda bez çanta
+      px(ctx, 3, 19, '#f4ece1', 4, 5); // Çanta gövdesi
+      // Kafa & Yüz
+      px(ctx, 6, 4, '#ffd4a3', 12, 9);
+      px(ctx, 8, 7, '#3d405b', 2, 2);
+      px(ctx, 14, 7, '#3d405b', 2, 2);
+      px(ctx, 7, 9, '#ff9aa2', 2, 1);
+      px(ctx, 15, 9, '#ff9aa2', 2, 1);
+      // Karamel Dalgalı Saç & Toka
+      px(ctx, 5, 2, '#7f4f24', 14, 4);
+      px(ctx, 4, 5, '#582f0e', 3, 8);
+      px(ctx, 17, 5, '#582f0e', 3, 8);
+      px(ctx, 17, 4, '#81b29a', 2, 2); // Yeşil toka
+      // Elinde Kitap
+      px(ctx, 13, 18, '#81b29a', 6, 5);
+      px(ctx, 14, 19, '#f4f1de', 4, 3);
+    });
+
+    // 11. Mühendis Kerem (Kampüs Bankında Laptopuyla Çalışan)
+    this.cache['npc_kerem'] = this.createPixelCanvas(26, 32, (ctx) => {
+      // Bankta Oturan Gövde
+      px(ctx, 6, 12, '#3d5a80', 14, 11);
+      px(ctx, 7, 13, '#4d729f', 12, 9);
+      px(ctx, 5, 22, '#293241', 16, 6); // Kot
+      // Kafa & Bere
+      px(ctx, 7, 4, '#ffd4a3', 12, 8);
+      px(ctx, 9, 7, '#1e1109', 2, 2);
+      px(ctx, 15, 7, '#1e1109', 2, 2);
+      // Hardal Sarısı Örme Bere
+      px(ctx, 6, 1, '#ee9b00', 14, 5);
+      px(ctx, 7, 2, '#ca6702', 12, 2);
+      // Kucağında Açık Laptop
+      px(ctx, 6, 18, '#1e293b', 14, 3);
+      px(ctx, 8, 15, '#7dd3fc', 10, 4); // Parlayan mavi ekran
+    });
   },
 
   // ========================================================
-  // 9. Stardew Valley Tarzı Yakın Plan Piksel Portreleri (64x64)
+  // 8. Yurt Odası Eşyaları (Dormitory Assets 🛏️)
+  // ========================================================
+  createDormSprites() {
+    const px = (ctx, x, y, c, w = 1, h = 1) => this.px(ctx, x, y, c, w, h);
+
+    // 1. Can'ın Tek Kişilik Yatağı (Yeşil Ekose Yorgan & Ahşap Karyola)
+    this.cache['bed_can'] = this.createPixelCanvas(68, 80, (ctx) => {
+      // Ahşap Başlık & Karyola Tabanı
+      px(ctx, 4, 4, '#381c0c', 60, 16);
+      px(ctx, 6, 6, '#5e3419', 56, 12);
+      px(ctx, 6, 20, '#2e1507', 56, 56); // Yatak bazası
+
+      // Beyaz/Krem Yastık
+      px(ctx, 14, 10, '#e2e8f0', 40, 12);
+      px(ctx, 16, 11, '#ffffff', 36, 10);
+      px(ctx, 22, 13, '#cbd5e1', 24, 2); // Yastık göçük çizgisi
+
+      // Orman Yeşili Yorgan & Katlanma Çizgisi
+      px(ctx, 8, 24, '#1b4332', 52, 50);
+      px(ctx, 10, 26, '#2d6a4f', 48, 46);
+
+      // Yorgan Doku & Çizgi Deseni (Stardew Tarzı)
+      for (let y = 30; y < 70; y += 8) {
+        px(ctx, 10, y, '#40916c', 48, 1);
+      }
+      for (let x = 16; x < 54; x += 10) {
+        px(ctx, x, 26, '#40916c', 1, 46);
+      }
+
+      // Üst Kıvrılan Çarşaf Katı
+      px(ctx, 8, 22, '#f8f9fa', 52, 5);
+      px(ctx, 10, 23, '#e9ecef', 48, 3);
+
+      // Başlık Üstü İsim Plaketi
+      px(ctx, 20, 5, '#1b4332', 28, 5);
+      px(ctx, 24, 6, '#52b788', 20, 3);
+
+      // Yatak Yanı Can'ın Terlikleri
+      px(ctx, 58, 64, '#2d3e54', 6, 8);
+      px(ctx, 59, 65, '#415a77', 4, 6);
+    });
+
+    // 2. Sezen'in Tek Kişilik Yatağı (Lavanta Yıldızlı Yorgan & Tokalı Yastık)
+    this.cache['bed_sezen'] = this.createPixelCanvas(68, 80, (ctx) => {
+      // Ahşap Karyola & Sıcak Meşe Başlık
+      px(ctx, 4, 4, '#4a2511', 60, 16);
+      px(ctx, 6, 6, '#733c1d', 56, 12);
+      px(ctx, 6, 20, '#381c0c', 56, 56);
+
+      // İpeksi Yumuşak Yastık & Mercan Fiyonk/Toka
+      px(ctx, 14, 10, '#f1eaee', 40, 12);
+      px(ctx, 16, 11, '#fffafd', 36, 10);
+      px(ctx, 48, 8, '#e76f51', 5, 4); // Sezen'in ikonik mercan saç tokası komodinde
+      px(ctx, 49, 9, '#f4a261', 2, 2);
+
+      // Lavanta / Mor Yıldızlı Yorgan
+      px(ctx, 8, 24, '#5c3a8e', 52, 50);
+      px(ctx, 10, 26, '#7d53b8', 48, 46);
+
+      // Yorgan Doku & Parlayan Minik Yıldız Dikişleri
+      for (let y = 30; y < 70; y += 10) {
+        px(ctx, 10, y, '#9d4edd', 48, 1);
+      }
+      const starDots = [[18, 34], [34, 42], [46, 36], [22, 52], [42, 58], [28, 64]];
+      starDots.forEach(([sx, sy]) => {
+        px(ctx, sx, sy, '#f72585', 2, 2);
+        px(ctx, sx, sy, '#ffffff', 1, 1);
+      });
+
+      // Çarşaf Kıvrımı
+      px(ctx, 8, 22, '#fdf0d5', 52, 5);
+      px(ctx, 10, 23, '#faedcd', 48, 3);
+
+      // Başlık Üstü İsim Plaketi
+      px(ctx, 20, 5, '#7209b7', 28, 5);
+      px(ctx, 24, 6, '#c77dff', 20, 3);
+
+      // Yatak Yanı Sezen'in Pembe Terlikleri
+      px(ctx, 4, 64, '#ffccd5', 6, 8);
+      px(ctx, 5, 65, '#ffb3c6', 4, 6);
+    });
+
+    // 3. Can'ın Çalışma Masası (Masaüstü Laptop, Kalemlik, Kitaplar)
+    this.cache['table_dorm_can'] = this.createPixelCanvas(64, 40, (ctx) => {
+      px(ctx, 2, 10, '#381c0c', 60, 20);
+      px(ctx, 4, 12, '#663b1d', 56, 16);
+      px(ctx, 6, 13, '#854f2c', 52, 13);
+      px(ctx, 4, 28, '#261307', 56, 4);
+      px(ctx, 6, 30, '#261307', 4, 10);
+      px(ctx, 54, 30, '#261307', 4, 10);
+
+      // Açık Laptop
+      px(ctx, 10, 14, '#1e293b', 18, 10);
+      px(ctx, 11, 15, '#38bdf8', 16, 7); // Mavi ekran
+      px(ctx, 18, 18, '#ffffff', 2, 2);  // Kod ikonu
+
+      // Yeşil Banker Lambası
+      px(ctx, 48, 8, '#1b4332', 10, 5);
+      px(ctx, 51, 13, '#d4af37', 2, 6);
+      px(ctx, 50, 11, '#ffea75', 6, 3); // Sıcak ışık
+    });
+
+    // 4. Sezen'in Çalışma Masası (Tablet, Renkli Defterler, Çiçek Saksısı)
+    this.cache['table_dorm_sezen'] = this.createPixelCanvas(64, 40, (ctx) => {
+      px(ctx, 2, 10, '#381c0c', 60, 20);
+      px(ctx, 4, 12, '#663b1d', 56, 16);
+      px(ctx, 6, 13, '#854f2c', 52, 13);
+      px(ctx, 4, 28, '#261307', 56, 4);
+      px(ctx, 6, 30, '#261307', 4, 10);
+      px(ctx, 54, 30, '#261307', 4, 10);
+
+      // Pembe Tablet & Kalem
+      px(ctx, 36, 14, '#f72585', 16, 10);
+      px(ctx, 37, 15, '#fae1eb', 14, 8);
+      px(ctx, 34, 18, '#ffffff', 1, 6);
+
+      // Minik Sukulent Saksısı
+      px(ctx, 12, 14, '#e76f51', 6, 6);
+      px(ctx, 13, 11, '#2a9d8f', 4, 4);
+
+      // Kupa
+      px(ctx, 24, 15, '#c77dff', 5, 5);
+    });
+
+    // 5. Yurt Ortak Çift Masası (Can & Sezen Gece Çalışma Masası)
+    this.cache['table_dorm_couple'] = this.createPixelCanvas(96, 44, (ctx) => {
+      px(ctx, 2, 10, '#381c0c', 92, 22);
+      px(ctx, 4, 12, '#663b1d', 88, 18);
+      px(ctx, 6, 14, '#8a522d', 84, 14);
+      px(ctx, 4, 30, '#241206', 88, 4);
+      px(ctx, 8, 32, '#241206', 5, 12);
+      px(ctx, 83, 32, '#241206', 5, 12);
+
+      // Ortada Çift İsimli Masa Takvimi & Mum
+      px(ctx, 44, 16, '#faedcd', 8, 7);
+      px(ctx, 45, 15, '#d4a373', 6, 2);
+      px(ctx, 47, 14, '#ffb703', 2, 2); // Küçük romantik mum alevi
+    });
+
+    // 6. Ahşap Çift Kapılı Gardırop
+    this.cache['dorm_wardrobe'] = this.createPixelCanvas(42, 64, (ctx) => {
+      px(ctx, 2, 2, '#2b1507', 38, 60);
+      px(ctx, 4, 4, '#5c3214', 34, 56);
+      px(ctx, 20, 4, '#2b1507', 2, 56); // Kapı ayrım çizgisi
+      px(ctx, 18, 30, '#d4af37', 2, 6);  // Sol kulp
+      px(ctx, 22, 30, '#d4af37', 2, 6);  // Sağ kulp
+      // Boy Aynası (Sağ kapıda)
+      px(ctx, 25, 10, '#a8dadc', 10, 36);
+      px(ctx, 26, 11, '#f1faee', 8, 34);
+    });
+
+    // 7. Çay / Kahve Köşesi & Su Isıtıcı (Kitchenette)
+    this.cache['dorm_kitchenette'] = this.createPixelCanvas(76, 42, (ctx) => {
+      px(ctx, 2, 8, '#26170d', 72, 32);
+      px(ctx, 4, 10, '#5a351d', 68, 28);
+      px(ctx, 6, 10, '#82522e', 64, 5); // Ahşap tezgah
+
+      // Paslanmaz Çelik Kettle (Elektrikli Su Isıtıcısı)
+      px(ctx, 12, 14, '#94a3b8', 12, 11);
+      px(ctx, 14, 15, '#cbd5e1', 8, 9);
+      px(ctx, 10, 18, '#334155', 2, 5); // Kulp
+      px(ctx, 24, 16, '#94a3b8', 2, 3); // Emzik
+      px(ctx, 24, 11, '#ffffff', 1, 3); // Minik buhar
+
+      // Çay Kutusu & Bardaklar (Biri Yeşil, Biri Lavanta)
+      px(ctx, 32, 16, '#d97706', 8, 9);  // Çay kutusu
+      px(ctx, 46, 17, '#2d6a4f', 5, 6);  // Can'ın kupası
+      px(ctx, 55, 17, '#7d53b8', 5, 6);  // Sezen'in kupası
+    });
+
+    // 8. Mini Buzdolabı
+    this.cache['dorm_fridge'] = this.createPixelCanvas(32, 42, (ctx) => {
+      px(ctx, 2, 2, '#cbd5e1', 28, 38);
+      px(ctx, 4, 4, '#f8fafc', 24, 34);
+      px(ctx, 4, 16, '#94a3b8', 24, 1); // Dondurucu kapağı ayrımı
+      px(ctx, 24, 7, '#64748b', 2, 6);  // Üst kol
+      px(ctx, 24, 20, '#64748b', 2, 8); // Alt kol
+      // Kalp Magnet & Sarı Not
+      px(ctx, 10, 20, '#ff4757', 3, 3); // Kırmızı kalp magnet
+      px(ctx, 8, 26, '#fef08a', 6, 6);  // Sarı alışveriş notu
+    });
+
+    // 9. Retro Jukebox / Lofi Radyo Çalar 📻
+    this.cache['retro_jukebox'] = this.createPixelCanvas(32, 34, (ctx) => {
+      px(ctx, 2, 6, '#381c0c', 28, 26);
+      px(ctx, 4, 8, '#783819', 24, 22);
+      // Anten
+      px(ctx, 22, 0, '#94a3b8', 1, 7);
+      px(ctx, 21, 0, '#e2e8f0', 3, 2);
+      // Frekans Kadranı (Sıcak Altın Parıltı)
+      px(ctx, 6, 11, '#fef08a', 12, 6);
+      px(ctx, 11, 11, '#ef4444', 1, 6); // Kırmızı ibre
+      // Hoparlör Izgarası
+      px(ctx, 6, 20, '#2d1508', 20, 8);
+      for (let x = 8; x < 24; x += 3) {
+        px(ctx, x, 21, '#d4af37', 1, 6);
+      }
+      // Döner Düğmeler
+      px(ctx, 21, 12, '#d4af37', 4, 4);
+    });
+
+    // 10. Can & Sezen Polaroids Anı Panosu (Fotoğraf Mantar Pano)
+    this.cache['dorm_photoboard'] = this.createPixelCanvas(48, 36, (ctx) => {
+      px(ctx, 2, 2, '#5e381d', 44, 32);
+      px(ctx, 4, 4, '#d4a373', 40, 28);
+
+      // Polaroid Foto 1: Can & Sezen Birlikte
+      px(ctx, 8, 7, '#ffffff', 14, 16);
+      px(ctx, 9, 8, '#8ecae6', 12, 11);
+      px(ctx, 11, 11, '#e76f51', 3, 3); // Kalp
+      px(ctx, 14, 6, '#e63946', 2, 2);  // Raptiye
+
+      // Polaroid Foto 2: Kedi Pamuk
+      px(ctx, 26, 12, '#ffffff', 14, 16);
+      px(ctx, 27, 13, '#faedcd', 12, 11);
+      px(ctx, 31, 16, '#f4a261', 4, 4); // Turuncu kedi silueti
+      px(ctx, 32, 11, '#e63946', 2, 2);
+    });
+  },
+
+  // ========================================================
+  // 9. Kampüs Ağaçları, Banklar & Sokak Lambaları (Campus Assets 🌳)
+  // ========================================================
+  createCampusSprites() {
+    const px = (ctx, x, y, c, w = 1, h = 1) => this.px(ctx, x, y, c, w, h);
+
+    // 1. Görkemli Kampüs Meşe Ağacı (Oak Tree 56x70)
+    this.cache['campus_tree_oak'] = this.createPixelCanvas(56, 70, (ctx) => {
+      // Gövde & Kökler
+      px(ctx, 22, 38, '#3d2010', 12, 30);
+      px(ctx, 24, 38, '#5e3419', 8, 28);
+      px(ctx, 18, 62, '#2d1508', 6, 6);
+      px(ctx, 32, 62, '#2d1508', 6, 6);
+
+      // Katmanlı Zengin Yeşil Taç
+      px(ctx, 6, 12, '#1b4332', 44, 32);
+      px(ctx, 10, 6, '#2d6a4f', 36, 34);
+      px(ctx, 14, 2, '#40916c', 28, 26);
+      px(ctx, 18, 4, '#52b788', 20, 16);
+      px(ctx, 22, 6, '#74c69d', 12, 10);
+    });
+
+    // 2. Pembe Kiraz Çiçeği Ağacı (Cherry Blossom Tree 56x70)
+    this.cache['campus_tree_cherry'] = this.createPixelCanvas(56, 70, (ctx) => {
+      px(ctx, 22, 38, '#3d2010', 12, 30);
+      px(ctx, 24, 38, '#5e3419', 8, 28);
+
+      // Pembe Sakura Çiçek Yaprakları
+      px(ctx, 6, 12, '#c9184a', 44, 32);
+      px(ctx, 10, 6, '#ff4d6d', 36, 34);
+      px(ctx, 14, 2, '#ff758f', 28, 26);
+      px(ctx, 18, 4, '#ff8fa3', 20, 16);
+      px(ctx, 22, 6, '#ffb3c6', 12, 10);
+      px(ctx, 26, 8, '#ffe5ec', 6, 6);
+    });
+
+    // 3. Ferforje & Ahşap Kampüs Bankı (Park Bench 48x28)
+    this.cache['campus_bench'] = this.createPixelCanvas(48, 28, (ctx) => {
+      // Döküm Demir Kollar & Bacaklar
+      px(ctx, 4, 8, '#1e293b', 4, 18);
+      px(ctx, 40, 8, '#1e293b', 4, 18);
+      px(ctx, 2, 22, '#0f172a', 8, 4);
+      px(ctx, 38, 22, '#0f172a', 8, 4);
+
+      // Ahşap Çıtalar (Teak Wood Slats)
+      for (let y = 6; y < 16; y += 3) {
+        px(ctx, 6, y, '#783819', 36, 2);
+        px(ctx, 7, y, '#9c5a2b', 34, 1);
+      }
+      // Oturma Tahtası
+      px(ctx, 6, 17, '#5e3419', 36, 4);
+      px(ctx, 7, 18, '#854f2c', 34, 2);
+    });
+
+    // 4. Viktoryen Kampüs Sokak Feneri (Streetlamp 16x56)
+    this.cache['campus_lamppost'] = this.createPixelCanvas(16, 56, (ctx) => {
+      // Döküm Taban
+      px(ctx, 4, 50, '#1c1917', 8, 6);
+      px(ctx, 6, 14, '#292524', 4, 38);
+      px(ctx, 7, 14, '#44403c', 2, 38);
+
+      // Fener Başlığı
+      px(ctx, 3, 4, '#1c1917', 10, 10);
+      px(ctx, 4, 5, '#fef08a', 8, 8); // Sıcak lamba camı
+      px(ctx, 6, 7, '#ffffff', 4, 4); // Parlayan filaman
+      px(ctx, 6, 1, '#1c1917', 4, 3);  // Şapka kubbesi
+    });
+  },
+
+  // ========================================================
+  // 10. Elde Taşınan Yiyecek, İçecek & Hediyelik Spritelar (18x18)
+  // ========================================================
+  createItemSprites() {
+    const px = (ctx, x, y, c, w = 1, h = 1) => this.px(ctx, x, y, c, w, h);
+
+    // 1. Karamel Macchiato Latte
+    this.cache['item_caramel_latte'] = this.createPixelCanvas(18, 18, (ctx) => {
+      px(ctx, 4, 4, '#fdfbf7', 10, 12);
+      px(ctx, 5, 7, '#6f4e37', 8, 8);
+      px(ctx, 4, 4, '#ffffff', 10, 3); // Krema
+      px(ctx, 6, 5, '#d97706', 6, 1);  // Karamel sos
+      px(ctx, 13, 6, '#cbd5e1', 3, 6); // Kulp
+    });
+
+    // 2. Pour Over V60 Filtre Kahve
+    this.cache['item_pour_over'] = this.createPixelCanvas(18, 18, (ctx) => {
+      px(ctx, 4, 5, '#e0e7ff', 10, 11);
+      px(ctx, 5, 8, '#3d2516', 8, 7);
+      px(ctx, 6, 2, '#ffffff', 1, 3);  // Yükselen buhar
+      px(ctx, 10, 1, '#ffffff', 1, 3);
+    });
+
+    // 3. Sıcak Çikolatalı Kurabiye
+    this.cache['item_cookie'] = this.createPixelCanvas(18, 18, (ctx) => {
+      px(ctx, 3, 3, '#d4a373', 12, 12);
+      px(ctx, 4, 2, '#bc6c25', 10, 14);
+      // Çikolata Parçacıkları
+      px(ctx, 5, 5, '#3b1f0c', 2, 2);
+      px(ctx, 10, 6, '#3b1f0c', 3, 2);
+      px(ctx, 7, 10, '#3b1f0c', 2, 2);
+      px(ctx, 11, 11, '#3b1f0c', 2, 2);
+    });
+
+    // 4. Fransız Kruvasanı
+    this.cache['item_croissant'] = this.createPixelCanvas(18, 18, (ctx) => {
+      px(ctx, 2, 6, '#b45309', 14, 8);
+      px(ctx, 4, 4, '#d97706', 10, 10);
+      px(ctx, 6, 3, '#f59e0b', 6, 11);
+      px(ctx, 8, 5, '#fbbf24', 3, 4);
+    });
+
+    // 5. Papatya Çayı
+    this.cache['item_chamomile_tea'] = this.createPixelCanvas(18, 18, (ctx) => {
+      px(ctx, 4, 5, '#fef9c3', 10, 11);
+      px(ctx, 5, 7, '#fef08a', 8, 8);
+      // Papatya Yaprakları
+      px(ctx, 7, 8, '#ffffff', 4, 4);
+      px(ctx, 8, 9, '#eab308', 2, 2);
+    });
+
+    // 6. Kır Çiçeği Buketi (Hediye)
+    this.cache['item_flower_bouquet'] = this.createPixelCanvas(18, 18, (ctx) => {
+      px(ctx, 7, 9, '#2d6a4f', 4, 8); // Saplar
+      px(ctx, 6, 12, '#e76f51', 6, 2); // Kurdele
+      px(ctx, 4, 4, '#ff758f', 4, 4);  // Pembe gül
+      px(ctx, 9, 3, '#ffd166', 4, 4);  // Sarı papatya
+      px(ctx, 7, 6, '#a0c4ff', 4, 4);  // Mavi unutma-beni
+    });
+
+    // 7. Gurme Kedi Maması / Süt (Pamuk için)
+    this.cache['item_cat_treat'] = this.createPixelCanvas(18, 18, (ctx) => {
+      px(ctx, 3, 6, '#94a3b8', 12, 8);
+      px(ctx, 4, 7, '#e2e8f0', 10, 6);
+      px(ctx, 7, 9, '#f43f5e', 4, 2); // Balık deseni
+    });
+  },
+
+  // ========================================================
+  // 11. Stardew Valley Tarzı Yakın Plan Piksel Portreleri (64x64)
   // Can (Sıcak Esmer Ten, Espresso Saç) & Sezen (Duru Beyaz Ten, Mavi-Siyah Saç, Mercan Toka)
   // ========================================================
   createPortraitSprites() {

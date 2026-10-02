@@ -73,6 +73,8 @@ const Network = {
         this.localPlayer.studyMode = serverMe.studyMode;
         this.localPlayer.tableId = serverMe.tableId;
         this.localPlayer.isHugging = serverMe.isHugging;
+        this.localPlayer.heldItem = serverMe.heldItem;
+        this.localPlayer.isSleeping = serverMe.isSleeping;
         this.localPlayer.studyElapsedSeconds = serverMe.studyElapsedSeconds || 0;
         this.localPlayer.studyActiveSince = serverMe.studyActiveSince || serverMe.studyStartTime || Date.now();
 
@@ -84,6 +86,8 @@ const Network = {
           Game.localPlayer.studyMode = serverMe.studyMode;
           Game.localPlayer.tableId = serverMe.tableId;
           Game.localPlayer.isHugging = serverMe.isHugging;
+          Game.localPlayer.heldItem = serverMe.heldItem;
+          Game.localPlayer.isSleeping = serverMe.isSleeping;
           Game.localPlayer.studyElapsedSeconds = serverMe.studyElapsedSeconds || 0;
           Game.localPlayer.studyActiveSince = serverMe.studyActiveSince || serverMe.studyStartTime || Date.now();
         }
@@ -98,6 +102,7 @@ const Network = {
         this.players[data.id].direction = data.direction;
         this.players[data.id].isMoving = data.isMoving;
         this.players[data.id].isHugging = data.isHugging;
+        this.players[data.id].isSleeping = data.isSleeping;
       }
     });
 
@@ -179,6 +184,66 @@ const Network = {
       }
       if (typeof UI !== 'undefined' && UI.showNoteNotification) {
         UI.showNoteNotification(note.sender, note.text);
+      }
+    });
+
+    // Dinamik Hava Durumu Senkronizasyonu
+    this.socket.on('weather_sync', (wState) => {
+      if (typeof Game !== 'undefined') {
+        Game.weather = wState;
+        Game.isRaining = (wState.type === 'rainy');
+        if (window.soundFX) {
+          window.soundFX.setRoomAmbience(Game.currentRoom, wState.type);
+        }
+      }
+      if (typeof UI !== 'undefined' && UI.updateWeatherHUD) {
+        UI.updateWeatherHUD(wState);
+      }
+    });
+
+    // Dilek Çeşmesi Olayı
+    this.socket.on('wishing_fountain_event', (data) => {
+      if (window.soundFX && window.soundFX.playCoinToss) {
+        window.soundFX.playCoinToss();
+      }
+      if (typeof Game !== 'undefined') {
+        Game.spawnEmote(data.playerName, 'sparkle');
+      }
+      UI.addChatMessage('✨ DİLEK', `🪙 ${data.playerName} dilek tuttu: "${data.fortune}"`, '#b5179e');
+      if (typeof UI !== 'undefined' && UI.showToast) {
+        UI.showToast(`🪙 ${data.fortune}`, 4500);
+      }
+    });
+
+    // Radyo İstasyonu Senkronizasyonu
+    this.socket.on('radio_station_sync', (data) => {
+      if (window.soundFX && window.soundFX.playCupChime) {
+        window.soundFX.playCupChime();
+      }
+      UI.addChatMessage('📻 RADYO', `[${data.stationName}] çalıyor... (Açan: ${data.changedBy})`, '#d97706');
+      if (typeof UI !== 'undefined' && UI.updateRadioStationBadge) {
+        UI.updateRadioStationBadge(data.stationName);
+      }
+    });
+
+    // Kedi Besleme Olayı
+    this.socket.on('cat_fed_event', (data) => {
+      if (window.soundFX && window.soundFX.playPurr) {
+        window.soundFX.playPurr();
+      }
+      if (typeof Game !== 'undefined') {
+        Game.spawnCoffeeBurst('Pamuk');
+        Game.spawnEmote('Pamuk', 'heart');
+      }
+    });
+
+    // Hediye Alma Olayı
+    this.socket.on('gift_received', (data) => {
+      if (window.soundFX && window.soundFX.playHug) {
+        window.soundFX.playHug();
+      }
+      if (typeof UI !== 'undefined' && UI.showGiftNotification) {
+        UI.showGiftNotification(data.from, data.giftName, data.note);
       }
     });
 
@@ -292,6 +357,41 @@ const Network = {
   sendDeskNote(text) {
     if (!this.socket || !this.localPlayer || !text) return;
     this.socket.emit('desk_note_send', { text });
+  },
+
+  buyFoodItem(itemId, itemName, itemIcon) {
+    if (!this.socket || !this.localPlayer) return;
+    this.socket.emit('buy_food_item', { itemId, itemName, itemIcon });
+  },
+
+  clearHeldItem() {
+    if (!this.socket || !this.localPlayer) return;
+    this.socket.emit('clear_held_item');
+  },
+
+  toggleSleep() {
+    if (!this.socket || !this.localPlayer) return;
+    this.socket.emit('toggle_sleep');
+  },
+
+  throwWishingCoin() {
+    if (!this.socket || !this.localPlayer) return;
+    this.socket.emit('throw_wishing_coin');
+  },
+
+  changeRadioStation(stationIndex, stationName) {
+    if (!this.socket || !this.localPlayer) return;
+    this.socket.emit('change_radio_station', { stationIndex, stationName });
+  },
+
+  feedCat() {
+    if (!this.socket || !this.localPlayer) return;
+    this.socket.emit('feed_cat');
+  },
+
+  sendGift(giftName, note) {
+    if (!this.socket || !this.localPlayer) return;
+    this.socket.emit('send_gift', { giftName, note });
   }
 };
 

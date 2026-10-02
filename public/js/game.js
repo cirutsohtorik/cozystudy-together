@@ -20,8 +20,14 @@ const Game = {
   nearTable: null,
   nearCat: false,
   nearNoteBoard: false,
+  nearWishingFountain: false,
+  nearMenuBoard: false,
+  nearJukebox: false,
+  nearBed: null,
   canHug: false,
-  isRaining: true,
+  isRaining: false,
+  weather: { type: 'sunny', temp: '22°C', label: 'Güneşli & Ilık ☀️' },
+  currentHour: new Date().getHours() + (new Date().getMinutes() / 60),
 
   init() {
     this.canvas = document.getElementById('gameCanvas');
@@ -35,8 +41,6 @@ const Game = {
     this.setupInputListeners();
     this.initParticles();
     this.initRain();
-
-    this.isRaining = true;
 
     let lastTime = performance.now();
     let bgInterval = null;
@@ -123,6 +127,24 @@ const Game = {
         e.preventDefault();
       }
 
+      // [P] Tuşu: Anı Fotoğrafı Çek (Polaroid Camera)
+      if (e.code === 'KeyP' || key === 'p') {
+        e.preventDefault();
+        if (typeof UI !== 'undefined' && UI.takePolaroidSnapshot) {
+          UI.takePolaroidSnapshot();
+        }
+        return;
+      }
+
+      // [I] Tuşu: Hediye & Çanta Menüsü
+      if (e.code === 'KeyI' || key === 'i') {
+        e.preventDefault();
+        if (typeof UI !== 'undefined' && UI.openGiftingModal) {
+          UI.openGiftingModal();
+        }
+        return;
+      }
+
       // [H] Tuşu: Sarılma
       if ((e.code === 'KeyH' || key === 'h') && this.canHug) {
         e.preventDefault();
@@ -132,6 +154,30 @@ const Game = {
 
       // [E] veya Boşluk Etkileşimleri
       if (e.code === 'KeyE' || key === 'e' || e.code === 'Space') {
+        if (this.nearBed) {
+          e.preventDefault();
+          Network.toggleSleep();
+          return;
+        }
+        if (this.nearWishingFountain) {
+          e.preventDefault();
+          Network.throwWishingCoin();
+          return;
+        }
+        if (this.nearMenuBoard) {
+          e.preventDefault();
+          if (typeof UI !== 'undefined' && UI.openFoodMenuModal) {
+            UI.openFoodMenuModal();
+          }
+          return;
+        }
+        if (this.nearJukebox) {
+          e.preventDefault();
+          if (typeof UI !== 'undefined' && UI.openJukeboxModal) {
+            UI.openJukeboxModal();
+          }
+          return;
+        }
         if (this.nearNoteBoard) {
           e.preventDefault();
           UI.openNotesModal();
@@ -195,6 +241,33 @@ const Game = {
           speedY: -(14 + Math.random() * 16), // Yukarı doğru yükselir
           size: 1.2 + Math.random() * 1.8,
           color: emberColors[i % emberColors.length]
+        });
+      }
+    } else if (room === 'campus_path') {
+      // Yeşil Meşe & Kiraz Yaprakları (Kampüs Rüzgarı)
+      const leafColors = ['#52b788', '#74c69d', '#40916c', '#d8f3dc'];
+      for (let i = 0; i < 28; i++) {
+        this.particles.push({
+          x: Math.random() * 640,
+          y: Math.random() * 400,
+          speedX: 16 + Math.random() * 14,
+          speedY: 10 + Math.random() * 10,
+          size: 2.0 + Math.random() * 1.4,
+          rotation: Math.random() * Math.PI * 2,
+          rotSpeed: (Math.random() - 0.5) * 3,
+          color: leafColors[i % leafColors.length]
+        });
+      }
+    } else if (room === 'dorm') {
+      // Yurt Odası: Sıcak Çay Buharı & Huzurlu Altın Tozlar
+      for (let i = 0; i < 20; i++) {
+        this.particles.push({
+          x: Math.random() * 640,
+          y: Math.random() * 400,
+          speedX: (Math.random() - 0.5) * 6,
+          speedY: (Math.random() - 0.5) * 4 - 2,
+          size: 1.0 + Math.random() * 1.5,
+          color: 'rgba(255, 230, 160, 0.45)'
         });
       }
     } else {
@@ -311,7 +384,37 @@ const Game = {
         this.checkNoteBoardProximity(map.noteBoard);
         this.checkCatProximity();
         this.checkHugProximity();
+        this.checkFountainProximity(map.wishingFountain);
+        this.checkMenuBoardProximity(map.menuBoard);
+        this.checkJukeboxProximity(map.jukebox);
+        this.checkBedProximity(map.beds);
       }
+    }
+
+    // Eldeki yiyecek/içecek 5 dakika (300 sn) sayaç kontrolü
+    if (this.localPlayer && this.localPlayer.heldItem) {
+      const elapsed = Date.now() - this.localPlayer.heldItem.startTime;
+      const remaining = Math.max(0, (this.localPlayer.heldItem.duration || 300000) - elapsed);
+      if (typeof UI !== 'undefined' && UI.updateHeldItemHUD) {
+        UI.updateHeldItemHUD(this.localPlayer.heldItem, remaining);
+      }
+      if (elapsed >= (this.localPlayer.heldItem.duration || 300000)) {
+        Network.clearHeldItem();
+        if (typeof UI !== 'undefined' && UI.updateHeldItemHUD) {
+          UI.updateHeldItemHUD(null, 0);
+        }
+      }
+    } else {
+      if (typeof UI !== 'undefined' && UI.updateHeldItemHUD) {
+        UI.updateHeldItemHUD(null, 0);
+      }
+    }
+
+    // Güncel oyun saati
+    const curDate = new Date();
+    this.currentHour = curDate.getHours() + (curDate.getMinutes() / 60);
+    if (typeof UI !== 'undefined' && UI.updateClockHUD) {
+      UI.updateClockHUD(this.currentHour);
     }
 
     // Emotelar (Zaman damgalı pürüzsüz yükseliş ve solma - asla takılı kalmaz)
@@ -326,8 +429,9 @@ const Game = {
     // Sohbet Balonları (3 saniye ömür)
     this.chatBubbles = this.chatBubbles.filter(b => (now - b.createdAt) < (b.duration || 3000));
 
-    // Yağmur (SADECE BAHÇEDE YAĞAR - Sınıf ve Kafede Asla Yağmaz)
-    if (this.isRaining && this.currentRoom === 'garden') {
+    // Yağmur (Bahçe ve Kampüs Yolunda Yağar - Sınıf, Kafe ve Yurtta Yağmaz)
+    const isOutdoor = this.currentRoom === 'garden' || this.currentRoom === 'campus_path';
+    if (this.isRaining && isOutdoor) {
       this.rainDrops.forEach(r => {
         r.y += r.speedY * dt;
         r.x += (r.speedX || 25) * dt;
@@ -392,6 +496,23 @@ const Game = {
     for (const d of doors) {
       if (px >= d.x && px <= d.x + d.width &&
           py >= d.y && py <= d.y + d.height) {
+
+        // Sınıf Kilit Kuralı: 08:30 - 16:00 arası ders işlendiğinden sınıf kapısı kilitlidir!
+        if (d.targetRoom === 'classroom') {
+          const now = new Date();
+          const hour = now.getHours() + (now.getMinutes() / 60);
+          if (hour >= 8.5 && hour < 16.0) {
+            if (!this._lastLockToast || Date.now() - this._lastLockToast > 3000) {
+              this._lastLockToast = Date.now();
+              UI.showToast('🔒 Sınıfta şu an ders işleniyor! (16:00\'a kadar kilitlidir)', 3500);
+              if (window.soundFX && window.soundFX.playDoorLocked) {
+                window.soundFX.playDoorLocked();
+              }
+            }
+            return; // Kapı kilitli!
+          }
+        }
+
         window.soundFX.playDoor();
         this.currentRoom = d.targetRoom;
         this.localPlayer.room = d.targetRoom;
@@ -399,7 +520,7 @@ const Game = {
         this.localPlayer.y = d.spawnY;
         UI.updateRoomName(d.targetRoom);
         Network.changeRoom(d.targetRoom, d.spawnX, d.spawnY);
-        window.soundFX.setRoomAmbience(d.targetRoom);
+        window.soundFX.setRoomAmbience(d.targetRoom, this.weather?.type);
         this.initParticlesForRoom(d.targetRoom);
         break;
       }
@@ -488,6 +609,69 @@ const Game = {
     } else {
       this.canHug = false;
       UI.hideHugPrompt();
+    }
+  },
+
+  checkFountainProximity(fountain) {
+    if (!fountain || this.currentRoom !== 'garden') {
+      this.nearWishingFountain = false;
+      return;
+    }
+    const px = this.localPlayer.x + 12;
+    const py = this.localPlayer.y + 24;
+    const dist = Math.hypot(px - (fountain.x + fountain.width / 2), py - (fountain.y + fountain.height / 2));
+    this.nearWishingFountain = dist < 65;
+    if (this.nearWishingFountain && !this.nearTable) {
+      UI.showInteractionPrompt('Dilek Tut & Para At 🪙');
+    }
+  },
+
+  checkMenuBoardProximity(menu) {
+    if (!menu || this.currentRoom !== 'cafe') {
+      this.nearMenuBoard = false;
+      return;
+    }
+    const px = this.localPlayer.x + 12;
+    const py = this.localPlayer.y + 24;
+    const dist = Math.hypot(px - (menu.x + menu.width / 2), py - (menu.y + menu.height / 2));
+    this.nearMenuBoard = dist < 70;
+    if (this.nearMenuBoard && !this.nearTable) {
+      UI.showInteractionPrompt('Kafe Menüsü (Sipariş Ver) ☕');
+    }
+  },
+
+  checkJukeboxProximity(jukebox) {
+    if (!jukebox || (this.currentRoom !== 'dorm' && this.currentRoom !== 'cafe')) {
+      this.nearJukebox = false;
+      return;
+    }
+    const px = this.localPlayer.x + 12;
+    const py = this.localPlayer.y + 24;
+    const dist = Math.hypot(px - (jukebox.x + jukebox.width / 2), py - (jukebox.y + jukebox.height / 2));
+    this.nearJukebox = dist < 55;
+    if (this.nearJukebox && !this.nearTable) {
+      UI.showInteractionPrompt('Lofi Radyo Çalar 📻');
+    }
+  },
+
+  checkBedProximity(beds) {
+    if (!beds || this.currentRoom !== 'dorm') {
+      this.nearBed = null;
+      return;
+    }
+    const px = this.localPlayer.x + 12;
+    const py = this.localPlayer.y + 24;
+    let found = null;
+    for (const b of beds) {
+      const dist = Math.hypot(px - (b.x + b.width / 2), py - (b.y + b.height / 2));
+      if (dist < 55) {
+        found = b;
+        break;
+      }
+    }
+    this.nearBed = found;
+    if (this.nearBed && !this.nearTable) {
+      UI.showInteractionPrompt(`${this.nearBed.name} Dinlen / Uyu 💤`);
     }
   },
 
@@ -695,8 +879,8 @@ const Game = {
     // 7. Karakter Baş Üstü Sohbet Balonları (3 saniye gösterim)
     this.renderChatBubbles(currentPlayers, time);
 
-    // 8. Yağmur Efekti (SADECE BAHÇEDE YAĞAR - Sınıf ve Kafede Asla Yağmaz)
-    if (this.isRaining && this.currentRoom === 'garden') {
+    // 8. Yağmur Efekti (Açık hava alanlarında: Bahçe ve Kampüs Yolu)
+    if (this.isRaining && (this.currentRoom === 'garden' || this.currentRoom === 'campus_path')) {
       this.ctx.lineWidth = 1.2;
       this.rainDrops.forEach(r => {
         this.ctx.strokeStyle = `rgba(180, 215, 255, ${r.alpha || 0.55})`;
@@ -726,7 +910,7 @@ const Game = {
     this.renderAtmosphericLighting(time);
 
     // 12. Gerçek Zamanlı Gece / Gündüz / Gün Batımı Işıklandırması
-    const lightingColor = Maps.getLightingOverlay(time);
+    const lightingColor = Maps.getLightingOverlay(time, this.weather?.type, this.currentHour);
     if (lightingColor && lightingColor !== 'rgba(255, 255, 255, 0)') {
       this.ctx.fillStyle = lightingColor;
       this.ctx.fillRect(0, 0, 640, 400);
@@ -966,6 +1150,43 @@ const Game = {
       ctx.beginPath();
       ctx.arc(556, 50, 65, 0, Math.PI * 2);
       ctx.fill();
+    } else if (this.currentRoom === 'campus_path') {
+      // 4 Sokak Lambasının Sıcak Kehribar Işık Havuzları
+      const streetlamps = [
+        { x: 140, y: 70, r: 52 },
+        { x: 500, y: 70, r: 52 },
+        { x: 140, y: 260, r: 52 },
+        { x: 500, y: 260, r: 52 }
+      ];
+      streetlamps.forEach(sl => {
+        const flicker = Math.sin(time * 0.003 + sl.x) * 0.03 + 0.28;
+        const slGrad = ctx.createRadialGradient(sl.x, sl.y, 4, sl.x, sl.y, sl.r);
+        slGrad.addColorStop(0, `rgba(255, 235, 170, ${flicker})`);
+        slGrad.addColorStop(0.5, `rgba(255, 205, 120, ${flicker * 0.4})`);
+        slGrad.addColorStop(1, 'rgba(255, 185, 90, 0)');
+        ctx.fillStyle = slGrad;
+        ctx.beginPath();
+        ctx.arc(sl.x, sl.y, sl.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    } else if (this.currentRoom === 'dorm') {
+      // Yurt Odası: Başucu Abajurları & Çay İstasyonu Işıltısı
+      const dormLights = [
+        { x: 140, y: 130, r: 42 }, // Can başucu
+        { x: 500, y: 130, r: 42 }, // Sezen başucu
+        { x: 490, y: 310, r: 36 }  // Mutfak köşesi su ısıtıcısı
+      ];
+      dormLights.forEach(dl => {
+        const flicker = Math.sin(time * 0.004 + dl.x) * 0.02 + 0.26;
+        const dlGrad = ctx.createRadialGradient(dl.x, dl.y, 4, dl.x, dl.y, dl.r);
+        dlGrad.addColorStop(0, `rgba(255, 220, 140, ${flicker})`);
+        dlGrad.addColorStop(0.6, `rgba(255, 190, 100, ${flicker * 0.35})`);
+        dlGrad.addColorStop(1, 'rgba(255, 170, 70, 0)');
+        ctx.fillStyle = dlGrad;
+        ctx.beginPath();
+        ctx.arc(dl.x, dl.y, dl.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
     }
 
     ctx.restore();
@@ -1106,7 +1327,28 @@ const Game = {
         }
       }
 
-      // Not: Masada oturma eşyaları (defter, buhar, telefon) masa sprite'ının üzerinde
+      // Uyuma Animasyonu (Yatakta Zzz partikülleri)
+      if (player.isSleeping) {
+        const zFloat = (time * 0.002) % 3;
+        const zAlpha = Math.max(0, 1 - (zFloat / 3));
+        this.ctx.save();
+        this.ctx.fillStyle = `rgba(180, 210, 255, ${zAlpha})`;
+        this.ctx.font = '10px Silkscreen, monospace';
+        this.ctx.fillText('Zzz..', posX + 14 + (zFloat * 4), posY - 10 - (zFloat * 12));
+        this.ctx.restore();
+      }
+
+      // Elde Taşınan Yiyecek / İçecek / Çiçek (Ayakta veya yürürken)
+      if (player.heldItem && !player.isSitting) {
+        const itemSprite = Sprites.cache[player.heldItem.sprite];
+        if (itemSprite) {
+          const itemX = posX + (dir === 'left' ? 2 : (dir === 'right' ? 14 : 8));
+          const itemY = posY + 15 + breathBob;
+          this.ctx.drawImage(itemSprite, itemX, itemY, 12, 12);
+        }
+      }
+
+      // Not: Masada oturma eşyaları (defter, buhar, telefon, kahve/kek) masa sprite'ının üzerinde
       // görünmesi için renderSittingPlayerOverlay metodunda çizilir.
     }
 
@@ -1296,6 +1538,33 @@ const Game = {
         this.ctx.fillStyle = '#ff3366';
         this.ctx.font = '7px monospace';
         this.ctx.fillText('♥', postItX + 1, postItY - 1 + pulse);
+      }
+
+      // ==========================================
+      // 4. MASAYA BIRAKILAN KAFE YİYECEK / İÇECEĞİ (5 Dakikalık Oturma Keyfi)
+      // ==========================================
+      if (player.heldItem) {
+        const foodSprite = Sprites.cache[player.heldItem.sprite];
+        if (foodSprite) {
+          const foodX = posX + (player.name === 'Can' ? 14 : 11);
+          const foodY = posY + 16;
+          // Minik dantelli peçete / bardak altlığı
+          this.ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+          this.ctx.fillRect(foodX - 2, foodY + 8, 14, 4);
+          this.ctx.drawImage(foodSprite, foodX, foodY, 12, 12);
+
+          // Sıcak içecekse hafif yükselen kahve/çay buharı
+          const isHotDrink = player.heldItem.id && (
+            player.heldItem.id.includes('latte') ||
+            player.heldItem.id.includes('tea') ||
+            player.heldItem.id.includes('pour_over')
+          );
+          if (isHotDrink) {
+            const steamY = (time * 0.003) % 2.5;
+            this.ctx.fillStyle = `rgba(255, 255, 255, ${Math.max(0, 0.65 - steamY * 0.25)})`;
+            this.ctx.fillRect(foodX + 4, foodY - 2 - (steamY * 3), 1.5, 1.5);
+          }
+        }
       }
 
       this.ctx.restore();

@@ -39,26 +39,31 @@ class SoundFX {
 
   getRoomVolume(room) {
     if (room === 'cafe') return 0.07; // Kısık, huzurlu akustik lofi gitar
-    if (room === 'garden') return 0.16; // Bahçede açık hava ağır yağmur
-    return 0.09; // Sınıfta pencere arkasından hafif yağmur
+    if (room === 'garden') return 0.16; // Bahçede açık hava yağmur veya kuşlar
+    if (room === 'campus_path') return 0.14; // Kampüs esintisi & ağaçlar
+    if (room === 'dorm') return 0.06; // Yurt odası sıcak sakinlik
+    return 0.09; // Sınıfta pencere arkasından kütüphane mevcudiyeti
   }
 
   // ========================================================
-  // Mekana Özel Ambiyans Yöneticisi
+  // Mekana & Hava Durumuna Özel Ambiyans Yöneticisi
   // ========================================================
-  setRoomAmbience(roomKey) {
+  setRoomAmbience(roomKey, weather = null) {
     this.init();
-    if (this.currentRoom === roomKey && this.activeNodes.length > 0) return;
+    const curWeather = weather || (typeof Game !== 'undefined' && Game.weather?.type) || 'sunny';
+    if (this.currentRoom === roomKey && this.currentWeather === curWeather && this.activeNodes.length > 0) return;
     this.currentRoom = roomKey;
+    this.currentWeather = curWeather;
     this.stopAmbience();
 
     if (this.muted) return;
 
     if (roomKey === 'classroom') {
       this.startClassroomAmbience();
-    } else if (roomKey === 'garden') {
-      const isRaining = typeof Game !== 'undefined' ? Game.isRaining : true;
-      if (isRaining) {
+    } else if (roomKey === 'dorm') {
+      this.startDormAmbience();
+    } else if (roomKey === 'garden' || roomKey === 'campus_path') {
+      if (curWeather === 'rainy') {
         this.startHeavyRainSound();
       } else {
         this.startGardenBreeze();
@@ -558,6 +563,148 @@ class SoundFX {
     } catch (e) {}
   }
 
+  // ========================================================
+  // 4. Yurt Odası Ambiyansı: Sıcak Oda Sakinliği & Çay Kettle Fısıltısı
+  // ========================================================
+  startDormAmbience() {
+    try {
+      const bufferSize = this.ctx.sampleRate * 2;
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      let lastOut = 0.0;
+
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        data[i] = (lastOut + (0.008 * white)) / 1.01;
+        lastOut = data[i];
+      }
+
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+      noise.loop = true;
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(220, this.ctx.currentTime);
+
+      this.ambienceGain = this.ctx.createGain();
+      const vol = this.muted ? 0 : 0.045;
+      this.ambienceGain.gain.setValueAtTime(vol, this.ctx.currentTime);
+
+      noise.connect(filter);
+      filter.connect(this.ambienceGain);
+      this.ambienceGain.connect(this.ctx.destination);
+
+      noise.start();
+      this.activeNodes.push(noise, filter, this.ambienceGain);
+    } catch (e) {
+      console.warn('Dorm audio error:', e);
+    }
+  }
+
+  // ========================================================
+  // Yeni Etkileşim & Eşya Sesleri
+  // ========================================================
+  playDoorLocked() {
+    if (this.muted || !this.ctx) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      const now = this.ctx.currentTime;
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.exponentialRampToValueAtTime(70, now + 0.10);
+      gain.gain.setValueAtTime(0.09, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.10);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.10);
+    } catch (e) {}
+  }
+
+  playCoinToss() {
+    if (this.muted || !this.ctx) return;
+    try {
+      // 1. Metalik para sesi
+      const now = this.ctx.currentTime;
+      const osc1 = this.ctx.createOscillator();
+      const gain1 = this.ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(1900, now);
+      osc1.frequency.exponentialRampToValueAtTime(3200, now + 0.12);
+      gain1.gain.setValueAtTime(0.04, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+      osc1.connect(gain1);
+      gain1.connect(this.ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.12);
+
+      // 2. Suya düşme 'Plop' sesi
+      const osc2 = this.ctx.createOscillator();
+      const gain2 = this.ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(380, now + 0.14);
+      osc2.frequency.exponentialRampToValueAtTime(120, now + 0.26);
+      gain2.gain.setValueAtTime(0.06, now + 0.14);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
+      osc2.connect(gain2);
+      gain2.connect(this.ctx.destination);
+      osc2.start(now + 0.14);
+      osc2.stop(now + 0.26);
+    } catch (e) {}
+  }
+
+  playSip() {
+    if (this.muted || !this.ctx) return;
+    try {
+      const now = this.ctx.currentTime;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(540, now);
+      osc.frequency.exponentialRampToValueAtTime(720, now + 0.08);
+      gain.gain.setValueAtTime(0.04, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    } catch (e) {}
+  }
+
+  playSnapshot() {
+    if (this.muted || !this.ctx) return;
+    try {
+      const now = this.ctx.currentTime;
+      // Deklanşör & ayna sesi 1
+      const osc1 = this.ctx.createOscillator();
+      const gain1 = this.ctx.createGain();
+      osc1.type = 'triangle';
+      osc1.frequency.setValueAtTime(850, now);
+      osc1.frequency.exponentialRampToValueAtTime(280, now + 0.04);
+      gain1.gain.setValueAtTime(0.08, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+      osc1.connect(gain1);
+      gain1.connect(this.ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.04);
+
+      // Deklanşör kapanma sesi 2
+      const osc2 = this.ctx.createOscillator();
+      const gain2 = this.ctx.createGain();
+      osc2.type = 'square';
+      osc2.frequency.setValueAtTime(420, now + 0.05);
+      osc2.frequency.exponentialRampToValueAtTime(160, now + 0.11);
+      gain2.gain.setValueAtTime(0.06, now + 0.05);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+      osc2.connect(gain2);
+      gain2.connect(this.ctx.destination);
+      osc2.start(now + 0.05);
+      osc2.stop(now + 0.11);
+    } catch (e) {}
+  }
+
   startAmbientDetailLoop(roomKey) {
     if (this.detailTimer) clearInterval(this.detailTimer);
     this.detailTimer = setInterval(() => {
@@ -566,8 +713,10 @@ class SoundFX {
         this.playPageTurn();
       } else if (roomKey === 'cafe') {
         this.playCupChime();
-      } else if (roomKey === 'garden') {
+      } else if (roomKey === 'garden' || roomKey === 'campus_path') {
         this.playWindChime();
+      } else if (roomKey === 'dorm') {
+        this.playPageTurn();
       }
     }, 28000 + Math.random() * 15000); // 28-43 saniyede bir sakin mikro ses
   }

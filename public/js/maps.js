@@ -4,23 +4,35 @@
 // ========================================================
 
 const Maps = {
-  // Gerçek Saate Göre Atmosferik Işıklandırma Rengi
-  getLightingOverlay(time) {
-    const hour = new Date().getHours();
-    // Sabah (06-09): Yumuşak altın şafak huzmesi
-    if (hour >= 6 && hour < 9) {
-      return 'rgba(255, 215, 140, 0.09)';
+  // Gerçek Saate & Hava Durumuna Göre Atmosferik Işıklandırma Rengi
+  getLightingOverlay(time, weather = 'sunny', customHour = null) {
+    let hour = customHour;
+    if (hour === null || hour === undefined) {
+      if (typeof Game !== 'undefined' && Game.currentHour !== undefined) {
+        hour = Game.currentHour;
+      } else {
+        const d = new Date();
+        hour = d.getHours() + (d.getMinutes() / 60);
+      }
     }
-    // Gündüz (09-17): Doğal gün ışığı
-    if (hour >= 9 && hour < 17) {
-      return 'rgba(255, 255, 255, 0)';
+
+    // Yağmurlu havada ortam daha buğulu ve hafif koyudur
+    const isRain = weather === 'rainy';
+
+    // Şafak (06:00 - 08:30): Altın sarısı romantik sabah ışığı
+    if (hour >= 6 && hour < 8.5) {
+      return isRain ? 'rgba(180, 185, 200, 0.22)' : 'rgba(255, 215, 140, 0.12)';
     }
-    // Gün Batımı (17-20): Sıcak kehribar / turuncu romantik ton
-    if (hour >= 17 && hour < 20) {
-      return 'rgba(235, 120, 60, 0.15)';
+    // Gündüz (08:30 - 16:30): Doğal gün ışığı (yağmurda hafif gri-mavi serinlik)
+    if (hour >= 8.5 && hour < 16.5) {
+      return isRain ? 'rgba(70, 95, 130, 0.18)' : 'rgba(255, 255, 255, 0)';
     }
-    // Gece (20-06): Huzurlu gece mavisi / ay ışığı
-    return 'rgba(18, 22, 50, 0.40)';
+    // Gün Batımı (16:30 - 19:30): Sıcak kehribar & pembe tonlar (Stardew Gün Batımı)
+    if (hour >= 16.5 && hour < 19.5) {
+      return isRain ? 'rgba(150, 80, 90, 0.25)' : 'rgba(235, 120, 60, 0.18)';
+    }
+    // Gece (19:30 - 06:00): Derin huzurlu gece mavisi & ay ışığı
+    return isRain ? 'rgba(10, 14, 38, 0.52)' : 'rgba(18, 22, 54, 0.38)';
   },
 
   // ========================================================
@@ -266,10 +278,17 @@ const Maps = {
         targetRoom: 'cafe',
         spawnX: 70, spawnY: 200,
         label: 'Kafe ➔'
+      },
+      {
+        x: 270, y: 360, width: 100, height: 40,
+        targetRoom: 'campus_path',
+        spawnX: 320, spawnY: 55,
+        label: '▼ Kampüs Yolu'
       }
     ],
 
     noteBoard: { x: 536, y: 60, width: 48, height: 50, label: 'Dilek Ağacı' },
+    wishingFountain: { x: 270, y: 120, width: 90, height: 65, label: 'Dilek Çeşmesi' },
 
     // Çardaklı Masalar (Gazebo Covered Tables)
     tables: [
@@ -291,7 +310,8 @@ const Maps = {
 
     colliders: [
       { x: 0, y: 0, width: 640, height: 40 },
-      { x: 0, y: 375, width: 640, height: 25 },
+      { x: 0, y: 375, width: 270, height: 25 }, // Güney sol duvar
+      { x: 370, y: 375, width: 270, height: 25 }, // Güney sağ duvar (Ortası Kampüs Yolu için açık)
       { x: 0, y: 0, width: 25, height: 165 },
       { x: 0, y: 250, width: 25, height: 150 },
       { x: 615, y: 0, width: 25, height: 165 },
@@ -452,6 +472,7 @@ const Maps = {
       ctx.font = '8px Silkscreen, monospace';
       ctx.fillText('◀ SINIF', 10, 155);
       ctx.fillText('KAFE ▶', 585, 155);
+      ctx.fillText('▼ KAMPÜS YOLU', 265, 394);
 
       // Açık Dekorlar
       this.decorSlots.forEach(slot => {
@@ -482,6 +503,8 @@ const Maps = {
     ],
 
     noteBoard: { x: 220, y: 125, width: 42, height: 42, label: 'Mantar Pano' },
+    menuBoard: { x: 255, y: 14, width: 140, height: 58, label: 'Cozy Kafe Menüsü' },
+    jukebox: { x: 425, y: 16, width: 44, height: 54, label: 'Retro Müzik Çalar' },
 
     tables: [
       { id: 'cafe_couple', x: 310, y: 250, width: 96, height: 44, name: 'Şömine Önü Romantik Çift Locası' },
@@ -636,7 +659,7 @@ const Maps = {
       ctx.fillStyle = '#8b5a2b';
       ctx.fillRect(196, 81, 7, 7);  // Çikolatalı kurabiye
 
-      // 5. Retro Menü Kara Tahtası (Chalkboard Menu with Coffee Art)
+      // 5. Retro Menü Kara Tahtası (Chalkboard Menu with Coffee Art - Sipariş [E])
       ctx.fillStyle = '#261b17';
       ctx.fillRect(255, 14, 140, 58);
       ctx.fillStyle = '#3d2618';
@@ -644,22 +667,22 @@ const Maps = {
 
       ctx.fillStyle = '#f8f4eb';
       ctx.font = '8px Silkscreen, monospace';
-      ctx.fillText('☕ GOOD COFFEE ☕', 268, 29);
+      ctx.fillText('☕ GOOD COFFEE MENÜ [E] ☕', 260, 29);
       ctx.font = '7px Silkscreen, monospace';
       ctx.fillStyle = '#ffdfba';
       ctx.fillText('• Caramel Latte ... 3★', 264, 42);
       ctx.fillText('• Pour Over Drip .. 2★', 264, 52);
       ctx.fillText('• Sıcak Kurabiye .. 2★', 264, 62);
 
-      // 6. Duvar Sanatı: Retro Çerçeveli Kahve Posteri
+      // 6. Duvar Sanatı: Retro Çerçeveli Kahve Posteri & Müzik Çalar
       ctx.fillStyle = '#d4af37'; // Altın çerçeve
       ctx.fillRect(425, 16, 44, 54);
       ctx.fillStyle = '#f7eed7';
       ctx.fillRect(428, 19, 38, 48);
       ctx.fillStyle = '#8c2d19';
       ctx.font = '7px Silkscreen, monospace';
-      ctx.fillText('FRESH', 432, 33);
-      ctx.fillText('ROAST', 432, 45);
+      ctx.fillText('LO-FI', 432, 33);
+      ctx.fillText('RADIO', 432, 45);
       ctx.fillStyle = '#5c3214';
       ctx.fillRect(442, 50, 10, 10); // Minik kupa ikonu
 
@@ -688,6 +711,307 @@ const Maps = {
           ctx.drawImage(Sprites.cache[slot.decorId], slot.x, slot.y);
         }
       });
+    }
+  },
+
+  // ========================================================
+  // 4. Kampüs Patikası (Campus Path 🌳)
+  // Ağaçlı & Çimli Yeşil Yol, Banklar, Sokak Fenerleri & Gezen Öğrenci/Hocalar
+  // ========================================================
+  campus_path: {
+    name: 'campus_path',
+    displayName: 'Kampüs Patikası 🌳',
+    width: 640,
+    height: 400,
+
+    doors: [
+      {
+        x: 270, y: 0, width: 100, height: 40,
+        targetRoom: 'garden',
+        spawnX: 320, spawnY: 345,
+        label: '▲ Bahçe'
+      },
+      {
+        x: 270, y: 360, width: 100, height: 40,
+        targetRoom: 'dorm',
+        spawnX: 320, spawnY: 70,
+        label: '▼ Can & Sezen Yurdu'
+      }
+    ],
+
+    tables: [
+      { id: 'campus_bench_left', x: 110, y: 170, width: 64, height: 40, name: 'Ihlamur Ağacı Altı Kampüs Bankı' },
+      { id: 'campus_bench_right', x: 460, y: 210, width: 64, height: 40, name: 'Güneşli Kiraz Çiçeği Bankı' }
+    ],
+
+    npcs: [
+      { id: 'ayse', sprite: 'npc_ayse', name: 'Ayşe', x: 330, y: 220, isSitting: false, activity: 'Derse yetişmeye çalışıyor 🎒' },
+      { id: 'kerem', sprite: 'npc_kerem', name: 'Kerem', x: 125, y: 165, isSitting: true, activity: 'Mühendislik ödevi kodluyor 💻' }
+    ],
+
+    colliders: [
+      { x: 0, y: 0, width: 270, height: 40 },
+      { x: 370, y: 0, width: 270, height: 40 },
+      { x: 0, y: 375, width: 270, height: 25 },
+      { x: 370, y: 375, width: 270, height: 25 },
+      { x: 0, y: 0, width: 24, height: 400 },
+      { x: 616, y: 0, width: 24, height: 400 },
+      // Ağaçlar ve Banklar Colliders
+      { x: 40, y: 50, width: 56, height: 60 },
+      { x: 540, y: 50, width: 56, height: 60 },
+      { x: 40, y: 240, width: 56, height: 60 },
+      { x: 540, y: 240, width: 56, height: 60 },
+      { x: 110, y: 180, width: 64, height: 26 },
+      { x: 460, y: 220, width: 64, height: 26 }
+    ],
+
+    render(ctx, time, unlockedDecors = []) {
+      // 1. Zengin Kampüs Çimeni
+      ctx.fillStyle = '#457b3b';
+      ctx.fillRect(0, 0, 640, 400);
+
+      // Çimen dokusu & yabani kır çiçekleri
+      ctx.fillStyle = '#528e46';
+      for (let x = 16; x < 624; x += 32) {
+        for (let y = 30; y < 380; y += 36) {
+          const shift = ((x * 5 + y * 11) % 9);
+          ctx.fillRect(x + shift, y, 4, 3);
+          ctx.fillRect(x + shift + 1, y - 2, 2, 2);
+        }
+      }
+
+      // Kır çiçekleri
+      const flowerColors = ['#ffccd5', '#ffd166', '#a0c4ff', '#ffffff'];
+      for (let i = 0; i < 40; i++) {
+        const fx = (i * 83) % 580 + 30;
+        const fy = (i * 59) % 340 + 30;
+        if (fx > 260 && fx < 380) continue; // Patikanın üstüne gelmesin
+        ctx.fillStyle = flowerColors[i % flowerColors.length];
+        ctx.fillRect(fx, fy, 3, 3);
+        ctx.fillStyle = '#2d5e23';
+        ctx.fillRect(fx + 1, fy + 3, 1, 2);
+      }
+
+      // 2. Geniş Arnavut Kaldırımı Kampüs Yolu (Kuzey - Güney Aksı)
+      ctx.fillStyle = '#8f887f';
+      ctx.fillRect(270, 0, 100, 400);
+
+      // Banklara ayrılan yan patikalar
+      ctx.fillRect(174, 182, 100, 36);
+      ctx.fillRect(366, 222, 100, 36);
+
+      // Taş parke çizgileri
+      ctx.fillStyle = '#a69f94';
+      for (let y = 0; y < 400; y += 16) {
+        for (let x = 274; x < 366; x += 18) {
+          const s = ((x + y) % 5);
+          ctx.fillRect(x + s, y + 2, 14, 11);
+          if ((x * y) % 7 === 0) {
+            ctx.fillStyle = '#3d6e2e'; // Minik yosun
+            ctx.fillRect(x + s + 2, y + 8, 3, 2);
+            ctx.fillStyle = '#a69f94';
+          }
+        }
+      }
+
+      // 3. Ağaçlar (Meşe & Kiraz Çiçeği)
+      if (Sprites.cache['campus_tree_oak']) {
+        ctx.drawImage(Sprites.cache['campus_tree_oak'], 40, 40);
+        ctx.drawImage(Sprites.cache['campus_tree_oak'], 540, 230);
+      }
+      if (Sprites.cache['campus_tree_cherry']) {
+        ctx.drawImage(Sprites.cache['campus_tree_cherry'], 540, 40);
+        ctx.drawImage(Sprites.cache['campus_tree_cherry'], 40, 230);
+      }
+
+      // 4. Kampüs Bankları (Masalar)
+      if (Sprites.cache['campus_bench']) {
+        ctx.drawImage(Sprites.cache['campus_bench'], 118, 175);
+        ctx.drawImage(Sprites.cache['campus_bench'], 468, 215);
+      }
+
+      // 5. Viktoryen Sokak Lambaları (4 Adet Yol Kenarı)
+      const lamps = [
+        { x: 250, y: 70 },
+        { x: 374, y: 70 },
+        { x: 250, y: 260 },
+        { x: 374, y: 260 }
+      ];
+      lamps.forEach(l => {
+        if (Sprites.cache['campus_lamppost']) {
+          ctx.drawImage(Sprites.cache['campus_lamppost'], l.x, l.y);
+        }
+      });
+
+      // 6. Yön Tabelaları & İpuçları
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '8px Silkscreen, monospace';
+      ctx.fillText('▲ BAHÇE & KAFE', 270, 16);
+      ctx.fillText('▼ CAN & SEZEN YURDU', 255, 394);
+    }
+  },
+
+  // ========================================================
+  // 5. Can & Sezen Yurt Odası (Dorm Room 🛏️)
+  // 2 Tek Yatak (Can & Sezen), Çalışma Masaları, Çay İstasyonu, Buzdolabı, Gardıroplar & Lofi Radyo
+  // ========================================================
+  dorm: {
+    name: 'dorm',
+    displayName: 'Can & Sezen Yurt Odası 🛏️',
+    width: 640,
+    height: 400,
+
+    doors: [
+      {
+        x: 270, y: 0, width: 100, height: 45,
+        targetRoom: 'campus_path',
+        spawnX: 320, spawnY: 340,
+        label: '▲ Kampüs Çıkışı'
+      }
+    ],
+
+    tables: [
+      { id: 'dorm_couple', x: 260, y: 235, width: 96, height: 44, name: 'Can & Sezen Birlikte Gece Çalışma Masası' },
+      { id: 'dorm_can', x: 120, y: 130, width: 64, height: 40, name: 'Can\'ın Bireysel Çalışma Masası' },
+      { id: 'dorm_sezen', x: 456, y: 130, width: 64, height: 40, name: 'Sezen\'in Bireysel Çalışma Masası' }
+    ],
+
+    beds: [
+      { id: 'bed_can', owner: 'Can', x: 40, y: 120, width: 68, height: 80, name: 'Can\'ın Yatağı 🌿' },
+      { id: 'bed_sezen', owner: 'Sezen', x: 532, y: 120, width: 68, height: 80, name: 'Sezen\'in Yatağı 🌸' }
+    ],
+
+    noteBoard: { x: 295, y: 18, width: 50, height: 36, label: 'Polaroid Anı Panosu' },
+    jukebox: { x: 400, y: 44, width: 32, height: 32, label: 'Lofi Radyo' },
+
+    colliders: [
+      { x: 0, y: 0, width: 270, height: 75 },
+      { x: 370, y: 0, width: 270, height: 75 },
+      { x: 0, y: 375, width: 640, height: 25 },
+      { x: 0, y: 0, width: 24, height: 400 },
+      { x: 616, y: 0, width: 24, height: 400 },
+      // Gardıroplar, Çay Köşesi, Buzdolabı, Yataklar, Masalar
+      { x: 38, y: 40, width: 44, height: 60 },
+      { x: 558, y: 40, width: 44, height: 60 },
+      { x: 195, y: 38, width: 78, height: 40 }, // Çay istasyonu
+      { x: 355, y: 40, width: 34, height: 38 }, // Mini buzdolabı
+      { x: 40, y: 125, width: 68, height: 75 }, // Can'ın yatağı
+      { x: 532, y: 125, width: 68, height: 75 }, // Sezen'in yatağı
+      { x: 120, y: 140, width: 64, height: 26 },
+      { x: 456, y: 140, width: 64, height: 26 },
+      { x: 260, y: 245, width: 96, height: 26 }
+    ],
+
+    render(ctx, time, unlockedDecors = []) {
+      // 1. Sıcak Meşe Parke Zemin (Plank Seams & Woodgrain)
+      ctx.fillStyle = '#b87b3e';
+      ctx.fillRect(0, 0, 640, 400);
+
+      // Parke hatları
+      for (let y = 75; y < 400; y += 22) {
+        ctx.fillStyle = '#9c622d';
+        ctx.fillRect(0, y, 640, 2);
+        for (let x = (y % 44 === 0 ? 0 : 36); x < 640; x += 72) {
+          ctx.fillRect(x, y, 2, 22);
+        }
+      }
+
+      // 2. Duvar (Krem Duvar Kağıdı + Sıcak Ahşap Lambri)
+      ctx.fillStyle = '#fbf5eb';
+      ctx.fillRect(0, 0, 640, 60);
+      ctx.fillStyle = '#5c3214';
+      ctx.fillRect(0, 60, 640, 15);
+      ctx.fillStyle = '#7a421b';
+      ctx.fillRect(0, 63, 640, 12);
+
+      // 3. Yurt Pencereleri (Can ve Sezen taraflarında pencereler)
+      [125, 460].forEach((wx, idx) => {
+        ctx.fillStyle = '#4a250d';
+        ctx.fillRect(wx - 2, 8, 54, 50);
+        ctx.fillStyle = '#9ec5e8';
+        ctx.fillRect(wx + 2, 12, 46, 42);
+
+        // Gece / Gündüz cam tonu
+        const currentHour = typeof Game !== 'undefined' ? Game.currentHour : 12;
+        if (currentHour < 6 || currentHour > 19) {
+          ctx.fillStyle = '#1e293b'; // Gece gökyüzü
+          ctx.fillRect(wx + 2, 12, 46, 42);
+          // Minik sarı yıldızlar
+          ctx.fillStyle = '#fef08a';
+          ctx.fillRect(wx + 10, 18, 2, 2);
+          ctx.fillRect(wx + 32, 24, 2, 2);
+          ctx.fillRect(wx + 22, 34, 1, 1);
+        }
+
+        // Ahşap pencere çıtaları
+        ctx.fillStyle = '#4a250d';
+        ctx.fillRect(wx + 24, 12, 2, 42);
+        ctx.fillRect(wx + 2, 32, 46, 2);
+
+        // Perdeler (Can tarafı koyu orman yeşili, Sezen tarafı lavanta moru)
+        const curtainColor = idx === 0 ? '#2d6a4f' : '#7d53b8';
+        ctx.fillStyle = curtainColor;
+        ctx.fillRect(wx - 4, 6, 8, 48);
+        ctx.fillRect(wx + 46, 6, 8, 48);
+        ctx.fillStyle = '#d4af37';
+        ctx.fillRect(wx - 2, 28, 4, 3); // Perde bağı
+        ctx.fillRect(wx + 48, 28, 4, 3);
+      });
+
+      // 4. Ortada Büyük Bohem Dokuma Kilim (Rug)
+      ctx.fillStyle = '#d4a373';
+      ctx.fillRect(230, 200, 180, 115);
+      ctx.fillStyle = '#faedcd';
+      ctx.fillRect(236, 206, 168, 103);
+      // Etnik baklava & çizgi desenleri
+      ctx.fillStyle = '#e76f51';
+      for (let rx = 246; rx < 390; rx += 24) {
+        ctx.fillRect(rx, 252, 12, 12);
+        ctx.fillRect(rx + 2, 254, 8, 8);
+      }
+      ctx.fillStyle = '#ccd5ae';
+      ctx.fillRect(236, 230, 168, 4);
+      ctx.fillRect(236, 285, 168, 4);
+
+      // 5. Eşyaların Çizimi
+      // Gardıroplar
+      if (Sprites.cache['dorm_wardrobe']) {
+        ctx.drawImage(Sprites.cache['dorm_wardrobe'], 38, 36);
+        ctx.drawImage(Sprites.cache['dorm_wardrobe'], 560, 36);
+      }
+
+      // Çay Köşesi Kitchenette & Mini Fridge
+      if (Sprites.cache['dorm_kitchenette']) {
+        ctx.drawImage(Sprites.cache['dorm_kitchenette'], 195, 38);
+      }
+      if (Sprites.cache['dorm_fridge']) {
+        ctx.drawImage(Sprites.cache['dorm_fridge'], 355, 40);
+      }
+
+      // Anı Panosu & Jukebox
+      if (Sprites.cache['dorm_photoboard']) {
+        ctx.drawImage(Sprites.cache['dorm_photoboard'], 295, 18);
+      }
+      if (Sprites.cache['retro_jukebox']) {
+        ctx.drawImage(Sprites.cache['retro_jukebox'], 400, 44);
+      }
+
+      // Yataklar (Can & Sezen)
+      if (Sprites.cache['bed_can']) {
+        ctx.drawImage(Sprites.cache['bed_can'], 40, 120);
+      }
+      if (Sprites.cache['bed_sezen']) {
+        ctx.drawImage(Sprites.cache['bed_sezen'], 532, 120);
+      }
+
+      // Kuzey Çıkış Kapısı & Tabela
+      ctx.fillStyle = '#4a250d';
+      ctx.fillRect(280, 0, 80, 24);
+      ctx.fillStyle = '#6b3e1f';
+      ctx.fillRect(284, 0, 72, 20);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '8px Silkscreen, monospace';
+      ctx.fillText('▲ KAMPÜS ÇIKIŞI', 270, 15);
     }
   }
 };

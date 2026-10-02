@@ -95,6 +95,22 @@ function getLocalIP() {
 // Can & Sezen Özel Oda Şifresi
 const ROOM_PASSWORD = process.env.ROOM_PASSWORD || 'Sezen99720.';
 
+// Dinamik Hava Durumu Sistemi (Güneşli, Yağmurlu, Bulutlu)
+const weatherStates = [
+  { type: 'sunny', temp: '22°C', label: 'Güneşli & Ilık ☀️' },
+  { type: 'sunny', temp: '24°C', label: 'Açık Gökyüzü 🌤️' },
+  { type: 'rainy', temp: '17°C', label: 'Tatlı Yağmurlu 🌧️' },
+  { type: 'cloudy', temp: '19°C', label: 'Hafif Esintili ⛅' }
+];
+let currentWeatherIndex = 0;
+let currentWeather = weatherStates[0];
+
+setInterval(() => {
+  currentWeatherIndex = (currentWeatherIndex + 1) % weatherStates.length;
+  currentWeather = weatherStates[currentWeatherIndex];
+  io.emit('weather_sync', currentWeather);
+}, 4 * 60 * 1000); // 4 dakikada bir hava durumu döngüsü
+
 io.on('connection', (socket) => {
   console.log(`[+] Oyuncu bağlandı: ${socket.id}`);
 
@@ -105,6 +121,7 @@ io.on('connection', (socket) => {
   });
   socket.emit('progress_sync', persistentProgress);
   socket.emit('cat_sync', cat);
+  socket.emit('weather_sync', currentWeather);
 
   // Karakter Seçimi (Şifre Korumalı)
   socket.on('choose_character', ({ characterName, password }) => {
@@ -140,19 +157,22 @@ io.on('connection', (socket) => {
     players[socket.id] = {
       id: socket.id,
       name: characterName,
-      room: 'classroom',
-      x: characterName === 'Can' ? 360 : 400,
-      y: 220,
+      room: 'dorm', // Oyuncu kendi yurt odasında başlar!
+      x: characterName === 'Can' ? 160 : 440,
+      y: 200,
       direction: 'down',
       isMoving: false,
       isSitting: false,
+      isSleeping: false,
       isHugging: false,
       tableId: null,
       studyTopic: '',
       studyMode: 'stopwatch', // 'stopwatch' veya 'pomodoro'
       pomodoroDuration: 25 * 60, // 25 dk
       studyStartTime: null,
-      isPaused: false
+      isPaused: false,
+      heldItem: null, // { id, name, icon, startTime, duration }
+      selectedSubject: 'general'
     };
 
     io.emit('slots_update', {
@@ -174,6 +194,9 @@ io.on('connection', (socket) => {
     player.direction = moveData.direction;
     player.isMoving = moveData.isMoving;
     player.isHugging = false;
+    if (moveData.isMoving) {
+      player.isSleeping = false; // Hareket edince uyku bozulur
+    }
 
     socket.broadcast.emit('player_moved', {
       id: socket.id,
@@ -182,7 +205,8 @@ io.on('connection', (socket) => {
       y: player.y,
       direction: player.direction,
       isMoving: player.isMoving,
-      isHugging: false
+      isHugging: false,
+      isSleeping: player.isSleeping
     });
   });
 
@@ -191,10 +215,20 @@ io.on('connection', (socket) => {
     const player = players[socket.id];
     if (!player) return;
 
+    // Sınıf Kilit Kontrolü: 08:30 - 16:00 arası ders işlendiğinden sınıf kilitlidir
+    if (newRoom === 'classroom') {
+      const now = new Date();
+      const currentHour = now.getHours() + (now.getMinutes() / 60);
+      if (currentHour >= 8.5 && currentHour < 16.0) {
+        return socket.emit('system_message', '🔒 Sınıfta şu an ders işleniyor! (08:30 - 16:00 arası kapalıdır, 16:00\'da açılır)');
+      }
+    }
+
     player.room = newRoom;
     player.x = spawnX;
     player.y = spawnY;
     player.isSitting = false;
+    player.isSleeping = false;
     player.tableId = null;
     player.isHugging = false;
 
@@ -437,6 +471,122 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Kafe Yiyecek & İçecek Sipariş Verme (Elde 5 dk Taşıma & Masaya Alma)
+  socket.on('buy_food_item', ({ itemId, itemName, itemIcon }) => {
+    const player = players[socket.id];
+    if (!player) return;
+
+    player.heldItem = {
+      id: itemId,
+      name: itemName,
+      icon: itemIcon,
+      startTime: Date.now(),
+      duration: 5 * 60 * 1000 // 5 dakika (300 saniye)
+    };
+
+    io.emit('players_sync', players);
+    io.emit('system_message', `☕ ${player.name}, Good Coffee'den nefis bir [${itemName}] aldı! Elinde taşıyor (5 dk).`);
+  });
+
+  // Eldeki Yiyeceğin/İçeceğin Süresi Dolunca Temizleme
+  socket.on('clear_held_item', () => {
+    const player = players[socket.id];
+    if (!player || !player.heldItem) return;
+
+    const itemName = player.heldItem.name;
+    player.heldItem = null;
+    io.emit('players_sync', players);
+    io.emit('system_message', `✨ ${player.name} lezzetli [${itemName}] bitirdi! Afiyet olsun 💕`);
+  });
+
+  // Yurt Yatağında Uzanma / Uyuma [E]
+  socket.on('toggle_sleep', () => {
+    const player = players[socket.id];
+    if (!player || player.room !== 'dorm' || player.isSitting) return;
+
+    player.isSleeping = !player.isSleeping;
+    if (player.isSleeping) {
+      player.x = player.name === 'Can' ? 64 : 536;
+      player.y = 150;
+      player.direction = 'down';
+    }
+    io.emit('players_sync', players);
+    if (player.isSleeping) {
+      io.emit('system_message', `💤 ${player.name} yatağına uzanıp tatlı bir uykuya daldı... (Zzz)`);
+    } else {
+      io.emit('system_message', `☀️ ${player.name} dinç bir zihinle uyandı!`);
+    }
+  });
+
+  // Dilek Çeşmesine Madeni Para Atma (Garden Fountain)
+  socket.on('throw_wishing_coin', () => {
+    const player = players[socket.id];
+    if (!player || player.room !== 'garden') return;
+
+    persistentProgress.cozyHearts = (persistentProgress.cozyHearts || 0) + 1;
+    saveProgress(persistentProgress);
+    io.emit('progress_sync', persistentProgress);
+
+    const fortunes = [
+      "Bugün Sezen'e tatlı bir iltifat etmeyi unutma! ❤️",
+      "Can & Sezen'in birlikte başaramayacağı hiçbir hedef yok! 🎓✨",
+      "Dileğin suya fısıldandı: Geleceğiniz sevgi ve başarıyla dolu olacak 🌸",
+      "Küçük bir mola zihni tazeler, sıradaki çalışma seansı harika geçecek! 🍅",
+      "Birlikte çalıştığınız her an hafızanızda ömür boyu kalacak bir hatıra 💕"
+    ];
+    const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+
+    io.emit('wishing_fountain_event', {
+      playerName: player.name,
+      fortune
+    });
+    io.emit('system_message', `🪙 ${player.name} Dilek Çeşmesine madeni para attı ve bir dilek tuttu! (+1 Cozy Kalp)`);
+  });
+
+  // Retro Radyo / Jukebox İstasyonu Değiştirme
+  socket.on('change_radio_station', ({ stationIndex, stationName }) => {
+    const player = players[socket.id];
+    if (!player) return;
+
+    io.emit('radio_station_sync', {
+      stationIndex,
+      stationName,
+      changedBy: player.name
+    });
+    io.emit('system_message', `📻 ${player.name} radyoda yeni bir istasyon açtı: [${stationName}] 🎵`);
+  });
+
+  // Kedi Pamuk'u Besleme
+  socket.on('feed_cat', () => {
+    const player = players[socket.id];
+    if (!player) return;
+
+    cat.state = 'purring';
+    cat.lastPurrTime = Date.now();
+    io.emit('cat_sync', cat);
+    io.emit('cat_fed_event', {
+      playerName: player.name
+    });
+    io.emit('system_message', `🐱 ${player.name} Kedi Pamuk'a nefis bir ödül maması verdi! Pamuk sevgiyle mırıldıyor 💕`);
+  });
+
+  // Sevimli Hediye Gönderme
+  socket.on('send_gift', ({ giftName, note }) => {
+    const player = players[socket.id];
+    if (!player) return;
+
+    const otherPlayer = Object.values(players).find(p => p.id !== socket.id);
+    const targetName = otherPlayer ? otherPlayer.name : (player.name === 'Can' ? 'Sezen' : 'Can');
+
+    io.emit('gift_received', {
+      from: player.name,
+      to: targetName,
+      giftName,
+      note: note || 'Sana küçük tatlı bir hediye!'
+    });
+    io.emit('system_message', `🎁 ${player.name}, ${targetName}'e [${giftName}] hediye etti! ❤️`);
+  });
+
   // Sohbet & Emote
   socket.on('send_chat', ({ message }) => {
     const player = players[socket.id];
@@ -510,6 +660,8 @@ io.on('connection', (socket) => {
 
 function getRoomDisplayName(roomKey) {
   switch (roomKey) {
+    case 'dorm': return 'Can & Sezen Yurdu 🛏️';
+    case 'campus_path': return 'Kampüs Patikası 🌳';
     case 'classroom': return 'Sınıf 🏫';
     case 'garden': return 'Bahçe 🌸';
     case 'cafe': return 'Kafe ☕';

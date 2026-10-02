@@ -1136,6 +1136,200 @@ const UI = {
     } else {
       this.showAuthModal('Hatalı şifre! Bu oda sadece Can ve Sezen içindir 💕');
     }
+  },
+
+  // ==========================================
+  // Genişletme Özellikleri UI Metotları
+  // ==========================================
+  selectedGiftItem: 'bouquet',
+
+  openFoodMenuModal() {
+    const modal = document.getElementById('food-menu-modal');
+    if (modal) modal.classList.remove('hidden');
+  },
+
+  closeFoodMenuModal() {
+    const modal = document.getElementById('food-menu-modal');
+    if (modal) modal.classList.add('hidden');
+    if (Game.canvas) Game.canvas.focus();
+  },
+
+  buyFoodItem(id, name, sprite, cost) {
+    if (Network.progress && Network.progress.cozyHearts < cost) {
+      this.showToast(`Yeterli Cozy Kalbiniz yok! Gereken: ${cost} 💕`);
+      return;
+    }
+    Network.buyFoodItem(id, name, sprite, cost);
+    this.closeFoodMenuModal();
+    this.showToast(`☕ ${name} sipariş edildi! 5 dakika elinizde ve masanızda duracak.`);
+  },
+
+  openJukeboxModal() {
+    const modal = document.getElementById('jukebox-modal');
+    if (modal) modal.classList.remove('hidden');
+  },
+
+  closeJukeboxModal() {
+    const modal = document.getElementById('jukebox-modal');
+    if (modal) modal.classList.add('hidden');
+    if (Game.canvas) Game.canvas.focus();
+  },
+
+  selectRadioStation(stationName) {
+    Network.changeRadioStation(stationName);
+    this.updateRadioStationBadge(stationName);
+    const btns = document.querySelectorAll('.station-btn');
+    btns.forEach(b => {
+      const title = b.querySelector('.st-title')?.textContent;
+      b.classList.toggle('active', title === stationName);
+    });
+    this.closeJukeboxModal();
+    this.showToast(`📻 Radyo kanalı "${stationName}" olarak ayarlandı!`);
+  },
+
+  updateRadioStationBadge(stationName) {
+    const badge = document.getElementById('hud-radio');
+    if (badge) {
+      badge.textContent = `📻 ${stationName}`;
+    }
+  },
+
+  openGiftingModal() {
+    const modal = document.getElementById('gifting-modal');
+    if (modal) modal.classList.remove('hidden');
+  },
+
+  closeGiftingModal() {
+    const modal = document.getElementById('gifting-modal');
+    if (modal) modal.classList.add('hidden');
+    if (Game.canvas) Game.canvas.focus();
+  },
+
+  selectGiftItem(type) {
+    this.selectedGiftItem = type;
+    const options = document.querySelectorAll('.gift-option');
+    options.forEach(opt => {
+      opt.classList.remove('selected');
+    });
+    const selected = Array.from(options).find(opt => opt.getAttribute('onclick')?.includes(type));
+    if (selected) selected.classList.add('selected');
+  },
+
+  submitGift() {
+    const input = document.getElementById('gift-message-input');
+    const note = input ? input.value.trim() : '';
+    const type = this.selectedGiftItem || 'bouquet';
+    Network.sendGift(type, note);
+    this.closeGiftingModal();
+    if (input) input.value = '';
+    this.showToast('🎁 Hediyeniz sevgilinize sevgiyle gönderildi! 💕');
+  },
+
+  showGiftNotification(fromOrObj, giftName, note) {
+    let from = 'Partnerin';
+    let gift = 'Özel bir hediye 🎁';
+    let message = '';
+    if (typeof fromOrObj === 'object' && fromOrObj !== null) {
+      from = fromOrObj.from || 'Partnerin';
+      gift = fromOrObj.giftName || 'Özel bir hediye 🎁';
+      message = fromOrObj.note || '';
+    } else {
+      from = fromOrObj || 'Partnerin';
+      gift = giftName || 'Özel bir hediye 🎁';
+      message = note || '';
+    }
+    const noteText = message ? `<br><i>"${message}"</i>` : '';
+    this.showToast(`🎁 <b>${from}</b> sana <b>${gift}</b> hediye etti! 💕${noteText}`, 6000);
+    window.soundFX?.playHug?.();
+    if (Game.spawnHugHearts && Game.localPlayer) {
+      Game.spawnHugHearts(Game.localPlayer.x, Game.localPlayer.y);
+    }
+  },
+
+  takePolaroidSnapshot() {
+    if (!Game.canvas) return;
+    window.soundFX?.playSnapshot?.();
+    try {
+      const dataUrl = Game.canvas.toDataURL('image/png');
+      const img = document.getElementById('polaroid-captured-img');
+      if (img) img.src = dataUrl;
+
+      const captionEl = document.getElementById('polaroid-caption-text');
+      const roomName = Maps[Game.currentRoom]?.displayName || Maps[Game.currentRoom]?.name || 'CozyStudy';
+      if (captionEl) captionEl.textContent = `Can & Sezen @ ${roomName} 💕`;
+
+      const dateEl = document.getElementById('polaroid-date-text');
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('tr-TR') + ' ' + now.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+      if (dateEl) dateEl.textContent = `Tarih: ${dateStr}`;
+
+      const modal = document.getElementById('polaroid-modal');
+      if (modal) modal.classList.remove('hidden');
+      this.showToast('📷 Harika bir an yakalandı!');
+    } catch (err) {
+      console.error('Polaroid capture error:', err);
+    }
+  },
+
+  closePolaroidModal() {
+    const modal = document.getElementById('polaroid-modal');
+    if (modal) modal.classList.add('hidden');
+    if (Game.canvas) Game.canvas.focus();
+  },
+
+  downloadPolaroidPhoto() {
+    const img = document.getElementById('polaroid-captured-img');
+    if (!img || !img.src) return;
+    const a = document.createElement('a');
+    a.href = img.src;
+    a.download = `cozystudy_polaroid_${Date.now()}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    this.showToast('💾 Polaroid fotoğraf cihazınıza indirildi!');
+  },
+
+  updateWeatherHUD(weather) {
+    const el = document.getElementById('hud-weather');
+    if (!el || !weather) return;
+    const icons = {
+      sunny: '☀️ Güneşli',
+      rainy: '🌧️ Yağmurlu',
+      cloudy: '⛅ Parçalı Bulutlu',
+      starry: '✨ Yıldızlı Gece'
+    };
+    el.textContent = icons[weather.type] || weather.name || '☀️ Güneşli';
+  },
+
+  updateClockHUD(hour) {
+    const el = document.getElementById('hud-clock');
+    if (!el) return;
+    const h = Math.floor(hour);
+    const m = Math.floor((hour - h) * 60);
+    const padH = String(h).padStart(2, '0');
+    const padM = String(m).padStart(2, '0');
+    el.textContent = `🕒 ${padH}:${padM}`;
+    if (hour >= 8.5 && hour < 16.0) {
+      el.title = 'Kampüs Saati (08:30 - 16:00: Sınıfta ders işleniyor, kilitli 🔒)';
+    } else {
+      el.title = 'Kampüs Saati (Ders saati dışı, sınıf serbest çalışmaya açık 🔓)';
+    }
+  },
+
+  updateHeldItemHUD(item, remainingMs) {
+    const el = document.getElementById('hud-held-item');
+    if (!el) return;
+    if (!item) {
+      el.classList.add('hidden');
+      el.style.display = 'none';
+      return;
+    }
+    el.classList.remove('hidden');
+    el.style.display = 'inline-flex';
+    const totalSec = Math.max(0, Math.floor(remainingMs / 1000));
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    el.textContent = `☕ ${item.name} (${m}:${String(s).padStart(2, '0')})`;
   }
 };
 
@@ -1188,4 +1382,19 @@ window.handleChatSubmit = (e) => {
     input.value = '';
   }
 };
+
+// Genişletme Global Metot Bağlantıları
+window.openFoodMenuModal = () => UI.openFoodMenuModal();
+window.closeFoodMenuModal = () => UI.closeFoodMenuModal();
+window.buyFoodItem = (id, name, sprite, cost) => UI.buyFoodItem(id, name, sprite, cost);
+window.openJukeboxModal = () => UI.openJukeboxModal();
+window.closeJukeboxModal = () => UI.closeJukeboxModal();
+window.selectRadioStation = (name) => UI.selectRadioStation(name);
+window.openGiftingModal = () => UI.openGiftingModal();
+window.closeGiftingModal = () => UI.closeGiftingModal();
+window.selectGiftItem = (type) => UI.selectGiftItem(type);
+window.submitGift = () => UI.submitGift();
+window.takePolaroidSnapshot = () => UI.takePolaroidSnapshot();
+window.closePolaroidModal = () => UI.closePolaroidModal();
+window.downloadPolaroidPhoto = () => UI.downloadPolaroidPhoto();
 

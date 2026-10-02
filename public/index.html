@@ -82,6 +82,9 @@
         </div>
         <span class="connection-status online" id="connection-status">● Bağlı</span>
         <span class="room-indicator" id="room-name">🏫 Sınıf</span>
+        <span class="hud-badge hud-clock" id="hud-clock" title="Kampüs Saati (08:30-16:00 arası ders var)">🕒 08:00</span>
+        <span class="hud-badge hud-weather" id="hud-weather" title="Hava Durumu">☀️ Güneşli</span>
+        <span class="hud-badge hud-held hidden" id="hud-held-item" title="Eldeki Yiyecek / İçecek">☕</span>
         <span class="streak-badge" id="hud-streak" title="Günlük Çalışma Serisi">🔥 1 Gün</span>
         <span class="hearts-badge" id="hud-hearts" title="Kazanılan Cozy Kalpler">💕 10</span>
       </div>
@@ -90,6 +93,9 @@
         <span class="partner-text" id="partner-info">Sezen bekleniyor...</span>
       </div>
       <div class="hud-right">
+        <span class="hud-badge hud-radio" id="hud-radio" title="Çalan Lofi Radyo İstasyonu" onclick="window.openJukeboxModal()">📻 Lofi Dreams</span>
+        <button id="btn-camera-polaroid" class="pixel-icon-btn" title="Anı Fotoğrafı Çek [P]" onclick="window.takePolaroidSnapshot()">📷</button>
+        <button id="btn-open-inventory" class="pixel-icon-btn" title="Hediye & Çanta [I]" onclick="window.openGiftingModal()">🎁</button>
         <button id="btn-popout-window" class="pixel-icon-btn" title="Kayan Pencere Modu" onclick="window.openPopoutWindow()">🗗</button>
         <button id="btn-open-notes" class="pixel-icon-btn" title="Sevgi & Motivasyon Notları" onclick="window.openNotesModal()">💌</button>
         <button id="btn-open-shop" class="pixel-icon-btn" title="Cozy Dükkan & Dekorasyon" onclick="window.openShopModal()">🛍️</button>
@@ -274,6 +280,180 @@
       <p class="hearts-earned-text" id="celebration-hearts">+45 Cozy Kalp Kazanıldı! 💕</p>
       <div class="hearts-animation">❤️❤️❤️</div>
       <button class="pixel-btn" onclick="window.closeCelebration()">Ayağa Kalk</button>
+    </div>
+  </div>
+
+  <!-- Kafe Yiyecek & İçecek Menüsü Modalı -->
+  <div id="food-menu-modal" class="modal-overlay hidden">
+    <div class="pixel-box modal-content food-menu-content">
+      <div class="modal-banner-box">
+        <img src="assets/cozy_coffee_bar.jpg" alt="Cozy Kafe Menüsü" class="modal-banner-img" />
+      </div>
+      <div class="shop-header">
+        <h3>☕ Cozy Kafe Sipariş Tahtası</h3>
+        <button class="pixel-icon-btn close-btn" onclick="window.closeFoodMenuModal()">✖</button>
+      </div>
+      <p class="modal-desc" style="margin-bottom: 12px; font-size: 13px;">Satın aldığınız yiyecek ve içecekler 5 dakika boyunca elinizde taşınır. Masaya oturduğunuzda masanızın üzerine yerleşir ve sıcacık buharı tüter!</p>
+      
+      <div class="food-menu-grid">
+        <div class="food-card">
+          <div class="food-icon">☕</div>
+          <div class="food-info">
+            <div class="food-title">Karamel Latte</div>
+            <div class="food-desc">Kremalı, karamel aromalı sıcacık latte.</div>
+          </div>
+          <button class="pixel-btn-small" onclick="window.buyFoodItem('caramel_latte', 'Karamel Latte', 'item_caramel_latte', 3)">Sipariş (3 💕)</button>
+        </div>
+
+        <div class="food-card">
+          <div class="food-icon">🫖</div>
+          <div class="food-info">
+            <div class="food-title">Filtre Kahve (Pour Over)</div>
+            <div class="food-desc">Taze demlenmiş V60 el yapımı kahve.</div>
+          </div>
+          <button class="pixel-btn-small" onclick="window.buyFoodItem('pour_over', 'Filtre Kahve', 'item_pour_over', 2)">Sipariş (2 💕)</button>
+        </div>
+
+        <div class="food-card">
+          <div class="food-icon">🍪</div>
+          <div class="food-info">
+            <div class="food-title">Çikolatalı Cookie</div>
+            <div class="food-desc">Fırından yeni çıkmış sıcak çikolata parçacıklı kurabiye.</div>
+          </div>
+          <button class="pixel-btn-small" onclick="window.buyFoodItem('cookie', 'Çikolatalı Cookie', 'item_cookie', 2)">Sipariş (2 💕)</button>
+        </div>
+
+        <div class="food-card">
+          <div class="food-icon">🥐</div>
+          <div class="food-info">
+            <div class="food-title">Tereyağlı Kruvasan</div>
+            <div class="food-desc">Çıtır çıtır, altın rengi taze kruvasan.</div>
+          </div>
+          <button class="pixel-btn-small" onclick="window.buyFoodItem('croissant', 'Kruvasan', 'item_croissant', 3)">Sipariş (3 💕)</button>
+        </div>
+
+        <div class="food-card">
+          <div class="food-icon">🍵</div>
+          <div class="food-info">
+            <div class="food-title">Papatya Çayı</div>
+            <div class="food-desc">Sakinleştirici ve odaklandırıcı ılık bitki çayı.</div>
+          </div>
+          <button class="pixel-btn-small" onclick="window.buyFoodItem('chamomile_tea', 'Papatya Çayı', 'item_chamomile_tea', 2)">Sipariş (2 💕)</button>
+        </div>
+
+        <div class="food-card">
+          <div class="food-icon">🐾</div>
+          <div class="food-info">
+            <div class="food-title">Pamuk Kedi Maması</div>
+            <div class="food-desc">Kedi Pamuk'u beslemek için çıtır ödül maması.</div>
+          </div>
+          <button class="pixel-btn-small" onclick="window.buyFoodItem('cat_treat', 'Kedi Ödül Maması', 'item_cat_treat', 1)">Sipariş (1 💕)</button>
+        </div>
+
+        <div class="food-card">
+          <div class="food-icon">💐</div>
+          <div class="food-info">
+            <div class="food-title">Taze Çiçek Buketi</div>
+            <div class="food-desc">Bahçeden yeni derlenmiş mis kokulu kır çiçekleri.</div>
+          </div>
+          <button class="pixel-btn-small" onclick="window.buyFoodItem('flower_bouquet', 'Çiçek Buketi', 'item_flower_bouquet', 5)">Sipariş (5 💕)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lofi Jukebox & Radyo Modalı -->
+  <div id="jukebox-modal" class="modal-overlay hidden">
+    <div class="pixel-box modal-content jukebox-modal-content">
+      <div class="notes-header">
+        <h3>📻 Lofi Radyo İstasyonu</h3>
+        <button class="pixel-icon-btn close-btn" onclick="window.closeJukeboxModal()">✖</button>
+      </div>
+      <p class="modal-desc" style="margin-bottom: 14px; font-size: 13px;">Seçtiğiniz radyo istasyonu Can ve Sezen için aynı anda çalar ve senkronize dinlenir 💕</p>
+      
+      <div class="radio-stations-list">
+        <button class="station-btn active" onclick="window.selectRadioStation('Lofi Dreams')">
+          <span class="st-icon">🌸</span>
+          <span class="st-title">Lofi Dreams</span>
+          <span class="st-desc">Hafif nostaljik piyano ve yumuşak vuruşlar</span>
+        </button>
+        <button class="station-btn" onclick="window.selectRadioStation('Cozy Coffee Bar')">
+          <span class="st-icon">☕</span>
+          <span class="st-title">Cozy Coffee Bar</span>
+          <span class="st-desc">Sıcak caz gitarı ve kafe mırıltısı</span>
+        </button>
+        <button class="station-btn" onclick="window.selectRadioStation('Rainy Window Beats')">
+          <span class="st-icon">🌧️</span>
+          <span class="st-title">Rainy Window Beats</span>
+          <span class="st-desc">Cama vuran yağmur damlacıkları eşliğinde lofi ritimler</span>
+        </button>
+        <button class="station-btn" onclick="window.selectRadioStation('Midnight Library')">
+          <span class="st-icon">🌌</span>
+          <span class="st-title">Midnight Library</span>
+          <span class="st-desc">Gece kuşu derin odaklanma ve sakin ambient</span>
+        </button>
+        <button class="station-btn" onclick="window.selectRadioStation('Forest Whispers')">
+          <span class="st-icon">🌲</span>
+          <span class="st-title">Forest Whispers</span>
+          <span class="st-desc">Hafif kampüs rüzgarı ve doğa ezgileri</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hediye & Çanta Modalı [I] -->
+  <div id="gifting-modal" class="modal-overlay hidden">
+    <div class="pixel-box modal-content gifting-modal-content">
+      <div class="notes-header">
+        <h3>🎁 Sevgiline Hediye Gönder [I]</h3>
+        <button class="pixel-icon-btn close-btn" onclick="window.closeGiftingModal()">✖</button>
+      </div>
+      <p class="modal-desc" style="margin-bottom: 12px; font-size: 13px;">Sevgilinin gününü güzelleştirecek tatlı bir hediye gönder!</p>
+
+      <div class="gifts-grid">
+        <div class="gift-option" onclick="window.selectGiftItem('bouquet')">
+          <div class="gift-icon">💐</div>
+          <div class="gift-name">Kır Çiçekleri</div>
+        </div>
+        <div class="gift-option" onclick="window.selectGiftItem('chocolate')">
+          <div class="gift-icon">🍫</div>
+          <div class="gift-name">Çikolata</div>
+        </div>
+        <div class="gift-option" onclick="window.selectGiftItem('latte')">
+          <div class="gift-icon">☕</div>
+          <div class="gift-name">Sıcak Kahve</div>
+        </div>
+        <div class="gift-option" onclick="window.selectGiftItem('letter')">
+          <div class="gift-icon">💌</div>
+          <div class="gift-name">Aşk Mektubu</div>
+        </div>
+      </div>
+
+      <input type="text" id="gift-message-input" class="pixel-input" placeholder="Hediyene tatlı bir not ekle..." maxlength="60" style="margin-top: 14px;" />
+      
+      <div class="modal-actions" style="margin-top: 14px;">
+        <button type="button" class="pixel-btn" onclick="window.submitGift()">🎁 Hediyeyi Gönder 💕</button>
+        <button type="button" class="pixel-btn cancel" onclick="window.closeGiftingModal()">Vazgeç</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Polaroid Anı Fotoğrafı Modalı [P] -->
+  <div id="polaroid-modal" class="modal-overlay hidden">
+    <div class="pixel-box polaroid-frame">
+      <div class="polaroid-header">
+        <h3>📷 Can & Sezen Polaroid Anısı</h3>
+        <button class="pixel-icon-btn close-btn" onclick="window.closePolaroidModal()">✖</button>
+      </div>
+      <div class="polaroid-photo-wrapper">
+        <img id="polaroid-captured-img" src="" alt="Polaroid Fotoğraf" class="polaroid-photo" />
+      </div>
+      <div class="polaroid-caption" id="polaroid-caption-text">Can & Sezen Birlikte Çalışırken 💕</div>
+      <div class="polaroid-date" id="polaroid-date-text">Tarih: 02.10.2026 14:30</div>
+      <div class="modal-actions" style="margin-top: 14px;">
+        <button type="button" class="pixel-btn" onclick="window.downloadPolaroidPhoto()">💾 Fotoğrafı Kaydet</button>
+        <button type="button" class="pixel-btn cancel" onclick="window.closePolaroidModal()">Kapat</button>
+      </div>
     </div>
   </div>
 
