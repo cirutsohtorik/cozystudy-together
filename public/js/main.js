@@ -2,7 +2,7 @@
 // CozyStudy: Ana Modül Giriş Noktası (ESM Entrypoint)
 // ========================================================
 
-import { EventBus } from './event_bus.js';
+import { EventBus, Maps, Sprites, soundFX, UI } from '../../src/index.js';
 
 console.log('🌸 CozyStudy ESM Entrypoint Başlatılıyor...');
 
@@ -13,4 +13,4 @@ window.addEventListener('load', () => {
   }
 });
 
-export { EventBus };
+export { EventBus, Maps, Sprites, soundFX, UI };

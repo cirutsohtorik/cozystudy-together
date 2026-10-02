@@ -9,7 +9,40 @@ CozyStudy, Can ve Sezen için özel olarak geliştirilmiş Stardew Valley & Good
 
 ---
 
-## 2. Mimari Kurallar ve Sınırlar (Architecture Invariants)
+## 2. Modüler Dosya Mimarisi (Module Map & Token Efficiency)
+
+Kod tabanı monolitik dosyalardan kurtarılarak `src/` altında modüler parçalara ayrılmıştır. Değişiklik yaparken **kesinlikle eski monolitik dosyaları açıp token harcama**, doğrudan ilgili küçük modülü oku ve güncelle:
+
+- **Haritalar (`src/maps/`):**
+  - `dorm.js`: Can & Sezen yurt odası tanımı, yataklar, çay istasyonu, anı panosu.
+  - `classroom.js`: Sınıf & kütüphane haritası, kara tahta, kitaplıklar.
+  - `garden.js`: Çardaklı bahçe, fıskiye, dilek ağacı.
+  - `cafe.js`: Good Coffee kafe, barista tezgahı, şömine, pasta vitrini.
+  - `campus_path.js`: Kampüs yürüyüş yolu, banklar, sokak fenerleri.
+  - `lighting.js`: Saat & hava durumuna göre dinamik ışıklandırma.
+- **Piksel Çizimler (`src/sprites/`):**
+  - `characters.js`: Can ve Sezen 3-ton shading yürüme ve oturma animasyonları.
+  - `furniture.js`: Masalar, sandalyeler ve çardaklar (gazebos).
+  - `decor.js`: Bitkiler, lambalar, halılar, sarılma ve Pamuk kedi.
+  - `npcs.js`: Tüm NPC'ler (Prof. Hikmet, Pelin, Mert, Salih Amca, Melis, vb.).
+  - `dorm.js`: Yurt eşyaları (yataklar, gardırop, buzdolabı, radyo, su ısıtıcı).
+  - `campus.js`: Kampüs ağaçları, banklar ve fenerler.
+  - `items.js`: Taşınabilir kahve, çay, kruvasan, buket ve mamalar.
+  - `portraits.js`: 64x64 Stardew Valley diyalog portreleri.
+- **Arayüz (`src/ui/`):**
+  - `auth.js`: Şifre ekranı (`Sezen99720.`) kontrolü.
+  - `hud.js`: Saat, hava, streak, kalp, toast ve chat bildirimleri.
+  - `study.js`: Ders çalışma, Pomodoro sayacı ve masa oturma mekaniği.
+  - `modals.js`: Dükkan, notlar, menü, jukebox, polaroid, hediye modalları.
+  - `mini.js`: Mini companion widget ve sürükleme sistemi.
+- **Ses & Ambiyans (`src/audio/`):**
+  - `index.js`: Sentetik lofi gitar, yağmur, rüzgar ve SFX kütüphanesi.
+- **İletişim & EventBus (`public/js/event_bus.js`):**
+  - Katmanlar arası bağımsız pub-sub olay sistemi.
+
+---
+
+## 3. Mimari Kurallar ve Sınırlar (Architecture Invariants)
 
 1. **Katman İzolasyonu (Layer Boundaries):**
    - **Network (`network.js` / `network/*`):** Sadece Socket.IO olaylarını dinler ve yayar. Doğrudan oyun içi state mutasyonu yapmak yerine `Game` veya `UI` metotlarını tetikler.
