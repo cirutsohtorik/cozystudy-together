@@ -1,6 +1,4 @@
-// ========================================================
-// CozyStudy: Sınıf & Kütüphane Haritası (Classroom Map)
-// ========================================================
+import { renderDynamicWindowView } from './lighting.js';
 
 export const classroom = {
   name: 'classroom',
@@ -85,35 +83,35 @@ export const classroom = {
       ctx.fillRect(x, 69, 2, 16);
     }
 
-    // 3. Arka Pencereler & Cama Vuran Yağmur İllüzyonu
+    // 3. Arka Pencereler (Dinamik Gökyüzü & Hava Görünümü)
+    const game = (typeof window !== 'undefined') ? window.Game : null;
+    const currentHour = (game && game.currentHour !== undefined) ? game.currentHour : 12;
+    const weather = (game && game.weather) ? game.weather : 'sunny';
+
     [36, 420].forEach(wx => {
       // Pencere ahşap kasası
       ctx.fillStyle = '#5c3214';
       ctx.fillRect(wx - 2, 10, 58, 54);
-      ctx.fillStyle = '#96c8e6';
-      ctx.fillRect(wx + 2, 14, 50, 46);
 
-      // Yağmur çizgileri camda
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-      const dropOffset = (time * 0.05) % 30;
-      ctx.fillRect(wx + 10, 16 + dropOffset, 1, 6);
-      ctx.fillRect(wx + 24, 24 + ((dropOffset * 1.3) % 28), 1, 5);
-      ctx.fillRect(wx + 38, 14 + ((dropOffset * 0.8) % 32), 1, 7);
+      // Dinamik Gökyüzü ve Hava Olayı
+      renderDynamicWindowView(ctx, wx + 2, 14, 50, 46, time, currentHour, weather);
 
-      // Pencere bölmeleri
+      // Pencere bölmeleri (Ahşap çıtalar)
       ctx.fillStyle = '#5c3214';
       ctx.fillRect(wx + 26, 14, 2, 46);
       ctx.fillRect(wx + 2, 36, 50, 2);
 
-      // Zemine vuran yumuşak gün ışığı konisi
-      ctx.fillStyle = 'rgba(255, 248, 220, 0.08)';
-      ctx.beginPath();
-      ctx.moveTo(wx + 2, 65);
-      ctx.lineTo(wx + 52, 65);
-      ctx.lineTo(wx + 90, 260);
-      ctx.lineTo(wx - 30, 260);
-      ctx.closePath();
-      ctx.fill();
+      // Zemine vuran yumuşak gün ışığı konisi (Gündüz saatlerinde)
+      if (currentHour >= 6 && currentHour < 18) {
+        ctx.fillStyle = 'rgba(255, 248, 220, 0.08)';
+        ctx.beginPath();
+        ctx.moveTo(wx + 2, 65);
+        ctx.lineTo(wx + 52, 65);
+        ctx.lineTo(wx + 90, 260);
+        ctx.lineTo(wx - 30, 260);
+        ctx.closePath();
+        ctx.fill();
+      }
     });
 
     // Sol Pencere Altı Sıcak Radyatör Kaloriferi

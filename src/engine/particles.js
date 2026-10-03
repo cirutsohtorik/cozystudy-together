@@ -7,6 +7,7 @@ export class ParticleSystem {
     this.particles = [];
     this.rainDrops = [];
     this.rainSplashes = [];
+    this.snowFlakes = [];
   }
 
   initForRoom(room) {
@@ -76,6 +77,21 @@ export class ParticleSystem {
     }
   }
 
+  initSnow() {
+    this.snowFlakes = [];
+    for (let i = 0; i < 60; i++) {
+      this.snowFlakes.push({
+        x: Math.random() * 640,
+        y: Math.random() * 400,
+        baseX: Math.random() * 640,
+        speedY: 28 + Math.random() * 32,
+        radius: 1.2 + Math.random() * 1.8,
+        alpha: 0.55 + Math.random() * 0.40,
+        driftSpeed: 1 + Math.random() * 2
+      });
+    }
+  }
+
   initRain() {
     this.rainDrops = [];
     this.rainSplashes = [];
@@ -91,7 +107,7 @@ export class ParticleSystem {
     }
   }
 
-  update(dt, isRaining) {
+  update(dt, isRaining, isSnowing = false, time = 0) {
     // Parçacıklar
     this.particles.forEach(p => {
       p.x += p.speedX * dt;
@@ -104,6 +120,21 @@ export class ParticleSystem {
       if (p.y > 400) p.y = 0;
       if (p.y < 0) p.y = 400;
     });
+
+    // Kar fiziği
+    if (isSnowing) {
+      if (!this.snowFlakes || this.snowFlakes.length === 0) {
+        this.initSnow();
+      }
+      this.snowFlakes.forEach(f => {
+        f.y += f.speedY * dt;
+        f.x = (f.baseX + Math.sin(time * 0.002 + f.y * 0.04) * 16 * f.driftSpeed + 640) % 640;
+        if (f.y > 400) {
+          f.y = -6;
+          f.baseX = Math.random() * 640;
+        }
+      });
+    }
 
     // Yağmur fiziği
     if (isRaining) {
@@ -133,6 +164,18 @@ export class ParticleSystem {
         }
       });
     }
+  }
+
+  renderSnow(ctx) {
+    if (!this.snowFlakes) return;
+    ctx.save();
+    this.snowFlakes.forEach(f => {
+      ctx.fillStyle = `rgba(255, 255, 255, ${f.alpha})`;
+      ctx.beginPath();
+      ctx.arc(f.x, f.y, f.radius, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    ctx.restore();
   }
 
   renderRain(ctx) {

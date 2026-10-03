@@ -24,6 +24,9 @@ export function openStudyModal(table) {
     } else if (curRoom === 'dorm') {
       bannerImg.src = 'assets/cozy_dorm_study.jpg';
       bannerImg.alt = 'Can & Sezen Yurt Odası Çalışma Masası';
+    } else if (curRoom === 'campus_path') {
+      bannerImg.src = 'assets/cozy_campus_bench.jpg';
+      bannerImg.alt = 'Kampüs Patikası Bankı';
     } else {
       bannerImg.src = 'assets/cozy_garden_gazebo.jpg';
       bannerImg.alt = 'Bahçe Çardağı';

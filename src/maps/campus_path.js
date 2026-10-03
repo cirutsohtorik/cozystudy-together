@@ -24,8 +24,8 @@ export const campus_path = {
   ],
 
   tables: [
-    { id: 'campus_bench_left', x: 110, y: 170, width: 64, height: 40, name: 'Ihlamur Ağacı Altı Kampüs Bankı' },
-    { id: 'campus_bench_right', x: 460, y: 210, width: 64, height: 40, name: 'Güneşli Kiraz Çiçeği Bankı' }
+    { id: 'campus_bench_left', x: 110, y: 170, width: 64, height: 40, name: 'Ihlamur Ağacı Altı Kampüs Bankı', occupied: true, occupiedBy: 'Kerem', disabled: true },
+    { id: 'campus_bench_right', x: 460, y: 210, width: 64, height: 40, name: 'Güneşli Kiraz Çiçeği Bankı', maxCapacity: 1 }
   ],
 
   npcs: [

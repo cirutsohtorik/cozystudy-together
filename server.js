@@ -10,10 +10,10 @@ const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: '*' } });
 const PORT = process.env.PORT || 3000;
 
-const staticDir = fs.existsSync(path.join(__dirname, 'dist')) 
-  ? path.join(__dirname, 'dist') 
-  : path.join(__dirname, 'public');
-app.use(express.static(staticDir));
+if (fs.existsSync(path.join(__dirname, 'dist'))) {
+  app.use(express.static(path.join(__dirname, 'dist')));
+}
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Kalıcı İlerleme Dosyası Yolu
 const DATA_DIR = path.join(__dirname, 'data');
@@ -100,10 +100,10 @@ const ROOM_PASSWORD = process.env.ROOM_PASSWORD || 'Sezen99720.';
 
 // Dinamik Hava Durumu Sistemi (Güneşli, Yağmurlu, Bulutlu)
 const weatherStates = [
-  { type: 'sunny', temp: '22°C', label: 'Güneşli & Ilık ☀️' },
-  { type: 'sunny', temp: '24°C', label: 'Açık Gökyüzü 🌤️' },
-  { type: 'rainy', temp: '17°C', label: 'Tatlı Yağmurlu 🌧️' },
-  { type: 'cloudy', temp: '19°C', label: 'Hafif Esintili ⛅' }
+  { type: 'sunny', temp: '23°C', label: 'Güneşli & Açık ☀️' },
+  { type: 'cloudy', temp: '19°C', label: 'Parçalı Bulutlu ⛅' },
+  { type: 'rainy', temp: '16°C', label: 'Tatlı Yağmurlu 🌧️' },
+  { type: 'snowy', temp: '1°C', label: 'Huzurlu Karlı ❄️' }
 ];
 let currentWeatherIndex = 0;
 let currentWeather = weatherStates[0];
@@ -289,12 +289,25 @@ io.on('connection', (socket) => {
     const player = players[socket.id];
     if (!player || player.isSitting) return;
 
-    // Tekli masa / Çiftli masa kapasite doğrulaması
+    // Tekli masa / Çiftli masa / Kampüs bankı kapasite doğrulaması
+    if (tableId === 'campus_bench_left') {
+      socket.emit('system_message', 'Kerem burada kodluyor, bank dolu 💻');
+      return;
+    }
     const occupants = Object.values(players).filter(p => p.room === player.room && p.isSitting && p.tableId === tableId);
-    const isCouple = tableId && (tableId.includes('couple') || tableId.includes('bench') || tableId.includes('c_table1') || tableId.includes('c_table2'));
-    const maxCapacity = isCouple ? 2 : 1;
+    let maxCapacity = 1;
+    if (tableId === 'campus_bench_right') {
+      maxCapacity = 1;
+    } else {
+      const isCouple = tableId && (tableId.includes('couple') || tableId.includes('bench') || tableId.includes('c_table1') || tableId.includes('c_table2'));
+      maxCapacity = isCouple ? 2 : 1;
+    }
     if (occupants.length >= maxCapacity) {
-      socket.emit('system_message', 'Bu masa veya oturma yeri şu an dolu.');
+      if (tableId === 'campus_bench_right') {
+        socket.emit('system_message', 'Bu bank tek kişiliktir.');
+      } else {
+        socket.emit('system_message', 'Bu masa veya oturma yeri şu an dolu.');
+      }
       return;
     }
 
@@ -510,7 +523,7 @@ io.on('connection', (socket) => {
     player.isSleeping = !player.isSleeping;
     if (player.isSleeping) {
       player.x = player.name === 'Can' ? 62 : 554;
-      player.y = 135;
+      player.y = 128;
       player.direction = 'down';
     } else {
       player.y = 205;

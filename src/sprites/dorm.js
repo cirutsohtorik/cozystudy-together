@@ -8,7 +8,7 @@ export function createDormSprites() {
   const cache = {};
   const drawPx = (ctx, x, y, c, w = 1, h = 1) => px(ctx, x, y, c, w, h);
 
-  // 1. Can'ın Yatağı
+  // 1. Can'ın Yatağı (Tam, Baz & Yorgan Katmanları)
   cache['bed_can'] = createPixelCanvas(68, 80, (ctx) => {
     drawPx(ctx, 4, 4, '#381c0c', 60, 16);
     drawPx(ctx, 6, 6, '#5e3419', 56, 12);
@@ -34,7 +34,35 @@ export function createDormSprites() {
     drawPx(ctx, 59, 65, '#415a77', 4, 6);
   });
 
-  // 2. Sezen'in Yatağı
+  cache['bed_can_base'] = createPixelCanvas(68, 80, (ctx) => {
+    drawPx(ctx, 4, 4, '#381c0c', 60, 16);
+    drawPx(ctx, 6, 6, '#5e3419', 56, 12);
+    drawPx(ctx, 6, 20, '#2e1507', 56, 56);
+    drawPx(ctx, 14, 10, '#e2e8f0', 40, 12);
+    drawPx(ctx, 16, 11, '#ffffff', 36, 10);
+    drawPx(ctx, 22, 13, '#cbd5e1', 24, 2);
+    drawPx(ctx, 20, 5, '#1b4332', 28, 5);
+    drawPx(ctx, 24, 6, '#52b788', 20, 3);
+  });
+
+  cache['bed_can_blanket'] = createPixelCanvas(68, 80, (ctx) => {
+    drawPx(ctx, 8, 24, '#1b4332', 52, 50);
+    drawPx(ctx, 10, 26, '#2d6a4f', 48, 46);
+
+    for (let y = 30; y < 70; y += 8) {
+      drawPx(ctx, 10, y, '#40916c', 48, 1);
+    }
+    for (let x = 16; x < 54; x += 10) {
+      drawPx(ctx, x, 26, '#40916c', 1, 46);
+    }
+
+    drawPx(ctx, 8, 22, '#f8f9fa', 52, 5);
+    drawPx(ctx, 10, 23, '#e9ecef', 48, 3);
+    drawPx(ctx, 58, 64, '#2d3e54', 6, 8);
+    drawPx(ctx, 59, 65, '#415a77', 4, 6);
+  });
+
+  // 2. Sezen'in Yatağı (Tam, Baz & Yorgan Katmanları)
   cache['bed_sezen'] = createPixelCanvas(68, 80, (ctx) => {
     drawPx(ctx, 4, 4, '#4a2511', 60, 16);
     drawPx(ctx, 6, 6, '#733c1d', 56, 12);
@@ -59,6 +87,37 @@ export function createDormSprites() {
     drawPx(ctx, 10, 23, '#faedcd', 48, 3);
     drawPx(ctx, 20, 5, '#7209b7', 28, 5);
     drawPx(ctx, 24, 6, '#c77dff', 20, 3);
+    drawPx(ctx, 4, 64, '#ffccd5', 6, 8);
+    drawPx(ctx, 5, 65, '#ffb3c6', 4, 6);
+  });
+
+  cache['bed_sezen_base'] = createPixelCanvas(68, 80, (ctx) => {
+    drawPx(ctx, 4, 4, '#4a2511', 60, 16);
+    drawPx(ctx, 6, 6, '#733c1d', 56, 12);
+    drawPx(ctx, 6, 20, '#381c0c', 56, 56);
+    drawPx(ctx, 14, 10, '#f1eaee', 40, 12);
+    drawPx(ctx, 16, 11, '#fffafd', 36, 10);
+    drawPx(ctx, 48, 8, '#e76f51', 5, 4);
+    drawPx(ctx, 49, 9, '#f4a261', 2, 2);
+    drawPx(ctx, 20, 5, '#7209b7', 28, 5);
+    drawPx(ctx, 24, 6, '#c77dff', 20, 3);
+  });
+
+  cache['bed_sezen_blanket'] = createPixelCanvas(68, 80, (ctx) => {
+    drawPx(ctx, 8, 24, '#5c3a8e', 52, 50);
+    drawPx(ctx, 10, 26, '#7d53b8', 48, 46);
+
+    for (let y = 30; y < 70; y += 10) {
+      drawPx(ctx, 10, y, '#9d4edd', 48, 1);
+    }
+    const starDots = [[18, 34], [34, 42], [46, 36], [22, 52], [42, 58], [28, 64]];
+    starDots.forEach(([sx, sy]) => {
+      drawPx(ctx, sx, sy, '#f72585', 2, 2);
+      drawPx(ctx, sx, sy, '#ffffff', 1, 1);
+    });
+
+    drawPx(ctx, 8, 22, '#fdf0d5', 52, 5);
+    drawPx(ctx, 10, 23, '#faedcd', 48, 3);
     drawPx(ctx, 4, 64, '#ffccd5', 6, 8);
     drawPx(ctx, 5, 65, '#ffb3c6', 4, 6);
   });

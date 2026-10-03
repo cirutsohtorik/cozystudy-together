@@ -256,22 +256,11 @@ function renderCharacterSleeping(ctx, p, isCan) {
   const headX = 4;
   const headY = 4;
 
-  // Yastık (Yumuşak beyaz & gölge)
-  drawPx(2, 2, '#cbd5e1', 20, 14);
-  drawPx(3, 3, '#f8fafc', 18, 12);
-  drawPx(5, 5, '#ffffff', 14, 8);
+  // Pijama yakası (pyjama collar)
+  drawPx(headX + 4, headY + 12, p.collar || '#ffffff', 8, 3);
+  drawPx(headX + 5, headY + 11, p.shirtShadow, 6, 2);
 
-  // Yorgan / Battaniye (Gövdeyi örten sıcak doku)
-  const blanketShadow = isCan ? '#1b4332' : '#5c3a8e';
-  const blanketMain = isCan ? '#2d6a4f' : '#7d53b8';
-
-  drawPx(2, 17, blanketShadow, 20, 15);
-  drawPx(3, 18, blanketMain, 18, 14);
-  // Yorgan üst beyaz kıvrımı
-  drawPx(2, 16, '#cbd5e1', 20, 2);
-  drawPx(3, 15, '#ffffff', 18, 2);
-
-  // Kafa (Yastıkta dinlenen yüz)
+  // Kafa (Yastıkta dinlenen huzurlu yüz)
   drawPx(headX + 2, headY + 2, p.skinShadow, 12, 10);
   drawPx(headX + 3, headY + 2, p.skin, 10, 9);
 
@@ -284,7 +273,7 @@ function renderCharacterSleeping(ctx, p, isCan) {
   // Minik tatlı uyku tebessümü
   drawPx(headX + 7, headY + 9, '#8c3d31', 2, 1);
 
-  // Saçlar
+  // Saçlar (Hacimli, ışık kırılmalı katmanlar)
   if (isCan) {
     drawPx(headX + 1, headY, p.hair, 14, 4);
     drawPx(headX + 2, headY, p.hairMid, 12, 3);
@@ -300,7 +289,5 @@ function renderCharacterSleeping(ctx, p, isCan) {
     drawPx(headX + 14, headY + 2, p.hair, 4, 10);
     drawPx(headX + 12, headY + 2, p.ribbon, 3, 3);
   }
-
-  // Yorgan üzerinden çıkan minik el
-  drawPx(headX + 4, 15, p.skin, 3, 2);
 }
+

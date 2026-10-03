@@ -293,22 +293,11 @@ const Sprites = {
     const headX = 4;
     const headY = 4;
 
-    // Yastık (Yumuşak beyaz & gölge)
-    px(2, 2, '#cbd5e1', 20, 14);
-    px(3, 3, '#f8fafc', 18, 12);
-    px(5, 5, '#ffffff', 14, 8);
+    // Pijama yakası (pyjama collar)
+    px(headX + 4, headY + 12, p.collar || '#ffffff', 8, 3);
+    px(headX + 5, headY + 11, p.shirtShadow, 6, 2);
 
-    // Yorgan / Battaniye (Gövdeyi örten sıcak doku)
-    const blanketShadow = isCan ? '#1b4332' : '#5c3a8e';
-    const blanketMain = isCan ? '#2d6a4f' : '#7d53b8';
-
-    px(2, 17, blanketShadow, 20, 15);
-    px(3, 18, blanketMain, 18, 14);
-    // Yorgan üst beyaz kıvrımı
-    px(2, 16, '#cbd5e1', 20, 2);
-    px(3, 15, '#ffffff', 18, 2);
-
-    // Kafa (Yastıkta dinlenen yüz)
+    // Kafa (Yastıkta dinlenen huzurlu yüz)
     px(headX + 2, headY + 2, p.skinShadow, 12, 10);
     px(headX + 3, headY + 2, p.skin, 10, 9);
 
@@ -321,7 +310,7 @@ const Sprites = {
     // Minik tatlı uyku tebessümü
     px(headX + 7, headY + 9, '#8c3d31', 2, 1);
 
-    // Saçlar
+    // Saçlar (Hacimli, ışık kırılmalı katmanlar)
     if (isCan) {
       px(headX + 1, headY, p.hair, 14, 4);
       px(headX + 2, headY, p.hairMid, 12, 3);
@@ -337,9 +326,6 @@ const Sprites = {
       px(headX + 14, headY + 2, p.hair, 4, 10);
       px(headX + 12, headY + 2, p.ribbon, 3, 3);
     }
-
-    // Yorgan üzerinden çıkan minik el
-    px(headX + 4, 15, p.skin, 3, 2);
   },
 
   // ========================================================
@@ -1162,6 +1148,34 @@ const Sprites = {
       px(ctx, 59, 65, '#415a77', 4, 6);
     });
 
+    this.cache['bed_can_base'] = this.createPixelCanvas(68, 80, (ctx) => {
+      px(ctx, 4, 4, '#381c0c', 60, 16);
+      px(ctx, 6, 6, '#5e3419', 56, 12);
+      px(ctx, 6, 20, '#2e1507', 56, 56);
+      px(ctx, 14, 10, '#e2e8f0', 40, 12);
+      px(ctx, 16, 11, '#ffffff', 36, 10);
+      px(ctx, 22, 13, '#cbd5e1', 24, 2);
+      px(ctx, 20, 5, '#1b4332', 28, 5);
+      px(ctx, 24, 6, '#52b788', 20, 3);
+    });
+
+    this.cache['bed_can_blanket'] = this.createPixelCanvas(68, 80, (ctx) => {
+      px(ctx, 8, 24, '#1b4332', 52, 50);
+      px(ctx, 10, 26, '#2d6a4f', 48, 46);
+
+      for (let y = 30; y < 70; y += 8) {
+        px(ctx, 10, y, '#40916c', 48, 1);
+      }
+      for (let x = 16; x < 54; x += 10) {
+        px(ctx, x, 26, '#40916c', 1, 46);
+      }
+
+      px(ctx, 8, 22, '#f8f9fa', 52, 5);
+      px(ctx, 10, 23, '#e9ecef', 48, 3);
+      px(ctx, 58, 64, '#2d3e54', 6, 8);
+      px(ctx, 59, 65, '#415a77', 4, 6);
+    });
+
     // 2. Sezen'in Tek Kişilik Yatağı (Lavanta Yıldızlı Yorgan & Tokalı Yastık)
     this.cache['bed_sezen'] = this.createPixelCanvas(68, 80, (ctx) => {
       // Ahşap Karyola & Sıcak Meşe Başlık
@@ -1198,6 +1212,37 @@ const Sprites = {
       px(ctx, 24, 6, '#c77dff', 20, 3);
 
       // Yatak Yanı Sezen'in Pembe Terlikleri
+      px(ctx, 4, 64, '#ffccd5', 6, 8);
+      px(ctx, 5, 65, '#ffb3c6', 4, 6);
+    });
+
+    this.cache['bed_sezen_base'] = this.createPixelCanvas(68, 80, (ctx) => {
+      px(ctx, 4, 4, '#4a2511', 60, 16);
+      px(ctx, 6, 6, '#733c1d', 56, 12);
+      px(ctx, 6, 20, '#381c0c', 56, 56);
+      px(ctx, 14, 10, '#f1eaee', 40, 12);
+      px(ctx, 16, 11, '#fffafd', 36, 10);
+      px(ctx, 48, 8, '#e76f51', 5, 4);
+      px(ctx, 49, 9, '#f4a261', 2, 2);
+      px(ctx, 20, 5, '#7209b7', 28, 5);
+      px(ctx, 24, 6, '#c77dff', 20, 3);
+    });
+
+    this.cache['bed_sezen_blanket'] = this.createPixelCanvas(68, 80, (ctx) => {
+      px(ctx, 8, 24, '#5c3a8e', 52, 50);
+      px(ctx, 10, 26, '#7d53b8', 48, 46);
+
+      for (let y = 30; y < 70; y += 10) {
+        px(ctx, 10, y, '#9d4edd', 48, 1);
+      }
+      const starDots = [[18, 34], [34, 42], [46, 36], [22, 52], [42, 58], [28, 64]];
+      starDots.forEach(([sx, sy]) => {
+        px(ctx, sx, sy, '#f72585', 2, 2);
+        px(ctx, sx, sy, '#ffffff', 1, 1);
+      });
+
+      px(ctx, 8, 22, '#fdf0d5', 52, 5);
+      px(ctx, 10, 23, '#faedcd', 48, 3);
       px(ctx, 4, 64, '#ffccd5', 6, 8);
       px(ctx, 5, 65, '#ffb3c6', 4, 6);
     });

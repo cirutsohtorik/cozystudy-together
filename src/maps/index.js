@@ -2,7 +2,7 @@
 // CozyStudy: Haritalar İndeksi (Maps Central Export)
 // ========================================================
 
-import { getLightingOverlay } from './lighting.js';
+import { getLightingOverlay, renderDynamicWindowView } from './lighting.js';
 import { classroom } from './classroom.js';
 import { garden } from './garden.js';
 import { cafe } from './cafe.js';
@@ -11,6 +11,7 @@ import { dorm } from './dorm.js';
 
 export const Maps = {
   getLightingOverlay,
+  renderDynamicWindowView,
   classroom,
   garden,
   cafe,

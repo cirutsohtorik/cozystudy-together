@@ -16,6 +16,7 @@ const Game = {
   particles: [],
   rainDrops: [],
   rainSplashes: [],
+  snowFlakes: [],
   chatBubbles: [],
   nearTable: null,
   nearCat: false,
@@ -26,7 +27,7 @@ const Game = {
   nearBed: null,
   canHug: false,
   isRaining: false,
-  weather: { type: 'sunny', temp: '22°C', label: 'Güneşli & Ilık ☀️' },
+  weather: { type: 'sunny', temp: '23°C', label: 'Güneşli & Açık ☀️' },
   currentHour: new Date().getHours() + (new Date().getMinutes() / 60),
 
   init() {
@@ -41,6 +42,7 @@ const Game = {
     this.setupInputListeners();
     this.initParticles();
     this.initRain();
+    this.initSnow();
 
     let lastTime = performance.now();
     let bgInterval = null;
@@ -300,6 +302,21 @@ const Game = {
     }
   },
 
+  initSnow() {
+    this.snowFlakes = [];
+    for (let i = 0; i < 60; i++) {
+      this.snowFlakes.push({
+        x: Math.random() * 640,
+        y: Math.random() * 400,
+        baseX: Math.random() * 640,
+        speedY: 28 + Math.random() * 32,
+        radius: 1.2 + Math.random() * 1.8,
+        alpha: 0.55 + Math.random() * 0.40,
+        driftSpeed: 1 + Math.random() * 2
+      });
+    }
+  },
+
   update(dt, time) {
     if (!this.localPlayer) return;
 
@@ -471,6 +488,22 @@ const Game = {
       this.rainSplashes = this.rainSplashes.filter(s => s.alpha > 0);
     }
 
+    // Kar Efekti Fiziği (Bahçe ve Kampüs Yolunda Yağar)
+    const isSnowy = this.weather?.type === 'snowy';
+    if (isSnowy && isOutdoor) {
+      if (!this.snowFlakes || this.snowFlakes.length === 0) {
+        this.initSnow();
+      }
+      this.snowFlakes.forEach(f => {
+        f.y += f.speedY * dt;
+        f.x = (f.baseX + Math.sin(time * 0.002 + f.y * 0.04) * 16 * f.driftSpeed + 640) % 640;
+        if (f.y > 400) {
+          f.y = -6;
+          f.baseX = Math.random() * 640;
+        }
+      });
+    }
+
     // Parçacıklar (Uçuşan yapraklar, buharlar ve altın tozlar)
     this.particles.forEach(p => {
       p.x += p.speedX * dt;
@@ -560,6 +593,11 @@ const Game = {
     }
 
     if (nearest && !this.localPlayer.isSitting) {
+      if (nearest.disabled || nearest.id === 'campus_bench_left') {
+        this.nearTable = null;
+        UI.showInteractionPrompt('Kerem burada kodluyor, bank dolu 💻');
+        return;
+      }
       this.nearTable = nearest;
       UI.showInteractionPrompt('Masaya Otur');
     } else {
@@ -677,6 +715,9 @@ const Game = {
     const py = this.localPlayer.y + 24;
     let found = null;
     for (const b of beds) {
+      if (b.owner && this.localPlayer && b.owner !== this.localPlayer.name) {
+        continue;
+      }
       const dist = Math.hypot(px - (b.x + b.width / 2), py - (b.y + b.height / 2));
       if (dist < 55) {
         found = b;
@@ -787,11 +828,7 @@ const Game = {
 
     this.ctx.clearRect(0, 0, 640, 400);
 
-    // 1. Harita ve Açık Dekorlar
-    const unlockedDecors = Network.progress?.unlockedDecors || [];
-    map.render(this.ctx, time, unlockedDecors);
-
-    // 2. Oyuncuları Hazırla
+    // 1. Oyuncuları Hazırla
     const currentPlayers = [];
     if (this.localPlayer && this.localPlayer.room === this.currentRoom) {
       currentPlayers.push(this.localPlayer);
@@ -801,6 +838,10 @@ const Game = {
         currentPlayers.push(p);
       }
     });
+
+    // 2. Harita ve Açık Dekorlar (Layered yatak çizimi için currentPlayers iletilir)
+    const unlockedDecors = Network.progress?.unlockedDecors || [];
+    map.render(this.ctx, time, unlockedDecors, currentPlayers);
 
     const areHugging = currentPlayers.length >= 2 && currentPlayers.every(p => p.isHugging);
 
@@ -864,6 +905,10 @@ const Game = {
       });
     } else {
       currentPlayers.forEach(p => {
+        // Yurtta yatakta uyuyan karakter dorm.render katmanlı yatak sistemi ile çizilir
+        if (p.isSleeping && this.currentRoom === 'dorm') {
+          return;
+        }
         // Oturan oyuncu masanın arkasında (sandalyede), ayaktaki oyuncu ayak tabanına göre sıralanır
         const depthY = p.isSitting ? p.y + 12 : p.y + 30;
         renderQueue.push({
@@ -898,7 +943,8 @@ const Game = {
     this.renderChatBubbles(currentPlayers, time);
 
     // 8. Yağmur Efekti (Açık hava alanlarında: Bahçe ve Kampüs Yolu)
-    if (this.isRaining && (this.currentRoom === 'garden' || this.currentRoom === 'campus_path')) {
+    const isOutdoor = this.currentRoom === 'garden' || this.currentRoom === 'campus_path';
+    if (this.isRaining && isOutdoor) {
       this.ctx.lineWidth = 1.2;
       this.rainDrops.forEach(r => {
         this.ctx.strokeStyle = `rgba(180, 215, 255, ${r.alpha || 0.55})`;
@@ -918,6 +964,20 @@ const Game = {
       });
     }
 
+    // 8.5. Kar Efekti (Açık hava alanlarında: Bahçe ve Kampüs Yolu)
+    if (this.weather?.type === 'snowy' && isOutdoor) {
+      this.ctx.save();
+      if (this.snowFlakes) {
+        this.snowFlakes.forEach(f => {
+          this.ctx.fillStyle = `rgba(255, 255, 255, ${f.alpha})`;
+          this.ctx.beginPath();
+          this.ctx.arc(f.x, f.y, f.radius, 0, Math.PI * 2);
+          this.ctx.fill();
+        });
+      }
+      this.ctx.restore();
+    }
+
     // 9. Canlı Ortam Parçacıkları (Uçuşan Sakura yaprakları, kahve aroması & şömine kıvılcımları)
     this.renderAmbientParticles(time);
 
@@ -927,8 +987,8 @@ const Game = {
     // 11. Dinamik Atmosferik Işıklandırma ve Işıldama (Lamba havuzları, fenerler, şömine alevi)
     this.renderAtmosphericLighting(time);
 
-    // 12. Gerçek Zamanlı Gece / Gündüz / Gün Batımı Işıklandırması
-    const lightingColor = Maps.getLightingOverlay(time, this.weather?.type, this.currentHour);
+    // 12. Gerçek Zamanlı Gece / Gündüz / Gün Batımı Işıklandırması (İç mekan korumalı)
+    const lightingColor = Maps.getLightingOverlay(time, this.weather?.type, this.currentHour, this.currentRoom);
     if (lightingColor && lightingColor !== 'rgba(255, 255, 255, 0)') {
       this.ctx.fillStyle = lightingColor;
       this.ctx.fillRect(0, 0, 640, 400);
@@ -1569,8 +1629,8 @@ const Game = {
       if (player.heldItem) {
         const foodSprite = Sprites.cache[player.heldItem.sprite];
         if (foodSprite) {
-          const foodX = posX + (player.name === 'Can' ? 14 : 11);
-          const foodY = posY + 16;
+          const foodX = posX + 26;
+          const foodY = posY + 22;
           // Minik dantelli peçete / bardak altlığı
           this.ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
           this.ctx.fillRect(foodX - 2, foodY + 8, 14, 4);

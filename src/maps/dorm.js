@@ -1,6 +1,4 @@
-// ========================================================
-// CozyStudy: Can & Sezen Yurt Odası Haritası (Dorm Map)
-// ========================================================
+import { renderDynamicWindowView } from './lighting.js';
 
 export const dorm = {
   name: 'dorm',
@@ -10,7 +8,7 @@ export const dorm = {
 
   doors: [
     {
-      x: 260, y: 0, width: 120, height: 60,
+      x: 285, y: 0, width: 70, height: 50,
       targetRoom: 'campus_path',
       spawnX: 320, spawnY: 270,
       label: '▲ Kampüs Çıkışı'
@@ -26,12 +24,12 @@ export const dorm = {
     { id: 'bed_sezen', owner: 'Sezen', x: 532, y: 120, width: 68, height: 80, name: 'Sezen\'in Yatağı 🌸' }
   ],
 
-  noteBoard: { x: 295, y: 18, width: 50, height: 36, label: 'Polaroid Anı Panosu' },
+  noteBoard: { x: 24, y: 70, width: 44, height: 38, label: 'Polaroid Anı Panosu' },
   jukebox: { x: 400, y: 44, width: 32, height: 32, label: 'Lofi Radyo' },
 
   colliders: [
-    { x: 0, y: 0, width: 260, height: 75 },
-    { x: 380, y: 0, width: 260, height: 75 },
+    { x: 0, y: 0, width: 285, height: 75 },
+    { x: 355, y: 0, width: 285, height: 75 },
     { x: 0, y: 375, width: 640, height: 25 },
     { x: 0, y: 0, width: 24, height: 400 },
     { x: 616, y: 0, width: 24, height: 400 },
@@ -45,8 +43,11 @@ export const dorm = {
     { x: 260, y: 245, width: 96, height: 26 }
   ],
 
-  render(ctx, time, unlockedDecors = []) {
+  render(ctx, time, unlockedDecors = [], players = null) {
     const spritesCache = (typeof window !== 'undefined' && window.Sprites && window.Sprites.cache) ? window.Sprites.cache : {};
+    const game = (typeof window !== 'undefined') ? window.Game : null;
+    const currentHour = (game && game.currentHour !== undefined) ? game.currentHour : 12;
+    const weather = (game && game.weather) ? game.weather : 'sunny';
 
     // 1. Sıcak Meşe Parke Zemin (Plank Seams & Woodgrain)
     ctx.fillStyle = '#b87b3e';
@@ -69,24 +70,13 @@ export const dorm = {
     ctx.fillStyle = '#7a421b';
     ctx.fillRect(0, 63, 640, 12);
 
-    // 3. Yurt Pencereleri (Can ve Sezen taraflarında pencereler)
+    // 3. Yurt Pencereleri (Dinamik Gökyüzü & Hava Görünümü)
     [125, 460].forEach((wx, idx) => {
       ctx.fillStyle = '#4a250d';
       ctx.fillRect(wx - 2, 8, 54, 50);
-      ctx.fillStyle = '#9ec5e8';
-      ctx.fillRect(wx + 2, 12, 46, 42);
 
-      // Gece / Gündüz cam tonu
-      const currentHour = (typeof window !== 'undefined' && window.Game && window.Game.currentHour !== undefined) ? window.Game.currentHour : 12;
-      if (currentHour < 6 || currentHour > 19) {
-        ctx.fillStyle = '#1e293b'; // Gece gökyüzü
-        ctx.fillRect(wx + 2, 12, 46, 42);
-        // Minik sarı yıldızlar
-        ctx.fillStyle = '#fef08a';
-        ctx.fillRect(wx + 10, 18, 2, 2);
-        ctx.fillRect(wx + 32, 24, 2, 2);
-        ctx.fillRect(wx + 22, 34, 1, 1);
-      }
+      // Dinamik Gökyüzü ve Hava Olayı
+      renderDynamicWindowView(ctx, wx + 2, 12, 46, 42, time, currentHour, weather);
 
       // Ahşap pencere çıtaları
       ctx.fillStyle = '#4a250d';
@@ -118,7 +108,45 @@ export const dorm = {
     ctx.fillRect(236, 230, 168, 4);
     ctx.fillRect(236, 285, 168, 4);
 
-    // 5. Eşyaların Çizimi
+    // 5. Ahşap Yurt Çıkış Kapısı (x: 285, y: 0) & Hasır Paspas (x: 292, y: 55)
+    // Kapı Kasası & Ahşap Kanat
+    ctx.fillStyle = '#381c0c';
+    ctx.fillRect(283, 0, 74, 56);
+    ctx.fillStyle = '#5c3214';
+    ctx.fillRect(285, 2, 70, 53);
+    ctx.fillStyle = '#7a421b';
+    ctx.fillRect(288, 5, 30, 22);
+    ctx.fillRect(322, 5, 30, 22);
+    ctx.fillRect(288, 30, 30, 22);
+    ctx.fillRect(322, 30, 30, 22);
+    // Pirinç Kapı Kolu
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillRect(289, 28, 3, 7);
+    ctx.fillStyle = '#fef08a';
+    ctx.fillRect(290, 29, 2, 2);
+
+    // Doğal Hasır Kapı Paspası (Doormat at x: 292, y: 55, w: 56, h: 16)
+    ctx.fillStyle = '#4a2c11';
+    ctx.fillRect(291, 54, 58, 18);
+    ctx.fillStyle = '#c29b62';
+    ctx.fillRect(293, 56, 54, 14);
+    ctx.fillStyle = '#9c7844';
+    for (let my = 58; my < 68; my += 3) {
+      ctx.fillRect(295, my, 50, 1);
+    }
+    ctx.fillStyle = '#5c3e1e';
+    ctx.font = '7px Silkscreen, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('WELCOME', 320, 66);
+
+    // Kapı Üstü Çıkış Tabelası
+    ctx.fillStyle = '#261307';
+    ctx.fillRect(280, 0, 80, 16);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '8px Silkscreen, monospace';
+    ctx.fillText('▲ KAMPÜS ÇIKIŞI', 320, 11);
+
+    // 6. Eşyaların Çizimi
     // Gardıroplar
     if (spritesCache['dorm_wardrobe']) {
       ctx.drawImage(spritesCache['dorm_wardrobe'], 38, 36);
@@ -133,20 +161,14 @@ export const dorm = {
       ctx.drawImage(spritesCache['dorm_fridge'], 355, 40);
     }
 
-    // Anı Panosu & Jukebox
+    // Anı Panosu (Sol Duvara Taşındı: x: 24, y: 70)
     if (spritesCache['dorm_photoboard']) {
-      ctx.drawImage(spritesCache['dorm_photoboard'], 295, 18);
-    }
-    if (spritesCache['retro_jukebox']) {
-      ctx.drawImage(spritesCache['retro_jukebox'], 400, 44);
+      ctx.drawImage(spritesCache['dorm_photoboard'], 24, 70);
     }
 
-    // Yataklar (Can & Sezen)
-    if (spritesCache['bed_can']) {
-      ctx.drawImage(spritesCache['bed_can'], 40, 120);
-    }
-    if (spritesCache['bed_sezen']) {
-      ctx.drawImage(spritesCache['bed_sezen'], 532, 120);
+    // Jukebox
+    if (spritesCache['retro_jukebox']) {
+      ctx.drawImage(spritesCache['retro_jukebox'], 400, 44);
     }
 
     // Büyük Ortak Çalışma Masası
@@ -154,13 +176,63 @@ export const dorm = {
       ctx.drawImage(spritesCache['table_dorm_couple'], 260, 235);
     }
 
-    // Kuzey Çıkış Kapısı & Tabela
-    ctx.fillStyle = '#4a250d';
-    ctx.fillRect(280, 0, 80, 24);
-    ctx.fillStyle = '#6b3e1f';
-    ctx.fillRect(284, 0, 72, 20);
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '8px Silkscreen, monospace';
-    ctx.fillText('▲ KAMPÜS ÇIKIŞI', 270, 15);
+    // 7. Katmanlı Yatak Çizimi (Base -> Sleeping Player Head -> Blanket -> Zzz)
+    const playersList = players || (typeof window !== 'undefined' && window.Network?.players ? Object.values(window.Network.players) : []);
+    const canPlayer = playersList.find(p => p.name === 'Can' && (p.room === 'dorm' || !p.room));
+    const sezenPlayer = playersList.find(p => p.name === 'Sezen' && (p.room === 'dorm' || !p.room));
+    const isCanSleeping = canPlayer?.isSleeping;
+    const isSezenSleeping = sezenPlayer?.isSleeping;
+
+    // Can'ın Yatağı
+    const bedCanBase = spritesCache['bed_can_base'] || spritesCache['bed_can'];
+    if (bedCanBase) {
+      ctx.drawImage(bedCanBase, 40, 120);
+    }
+    if (isCanSleeping) {
+      const breathBob = Math.sin(time * 0.003) * 0.6;
+      const canSleepingSprite = spritesCache['Can']?.['sleeping'] || spritesCache['Can']?.['down']?.[0];
+      if (canSleepingSprite) {
+        ctx.drawImage(canSleepingSprite, 62, 128 + breathBob);
+      }
+    }
+    const bedCanBlanket = spritesCache['bed_can_blanket'];
+    if (bedCanBlanket) {
+      ctx.drawImage(bedCanBlanket, 40, 120);
+    }
+    if (isCanSleeping) {
+      const zFloat = (time * 0.002) % 3;
+      const zAlpha = Math.max(0, 1 - (zFloat / 3));
+      ctx.save();
+      ctx.fillStyle = `rgba(180, 210, 255, ${zAlpha})`;
+      ctx.font = '10px Silkscreen, monospace';
+      ctx.fillText('Zzz..', 76 + (zFloat * 4), 118 - (zFloat * 12));
+      ctx.restore();
+    }
+
+    // Sezen'in Yatağı
+    const bedSezenBase = spritesCache['bed_sezen_base'] || spritesCache['bed_sezen'];
+    if (bedSezenBase) {
+      ctx.drawImage(bedSezenBase, 532, 120);
+    }
+    if (isSezenSleeping) {
+      const breathBob = Math.sin(time * 0.003) * 0.6;
+      const sezenSleepingSprite = spritesCache['Sezen']?.['sleeping'] || spritesCache['Sezen']?.['down']?.[0];
+      if (sezenSleepingSprite) {
+        ctx.drawImage(sezenSleepingSprite, 554, 128 + breathBob);
+      }
+    }
+    const bedSezenBlanket = spritesCache['bed_sezen_blanket'];
+    if (bedSezenBlanket) {
+      ctx.drawImage(bedSezenBlanket, 532, 120);
+    }
+    if (isSezenSleeping) {
+      const zFloat = (time * 0.002) % 3;
+      const zAlpha = Math.max(0, 1 - (zFloat / 3));
+      ctx.save();
+      ctx.fillStyle = `rgba(215, 195, 255, ${zAlpha})`;
+      ctx.font = '10px Silkscreen, monospace';
+      ctx.fillText('Zzz..', 568 + (zFloat * 4), 118 - (zFloat * 12));
+      ctx.restore();
+    }
   }
 };

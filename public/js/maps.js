@@ -4,8 +4,8 @@
 // ========================================================
 
 const Maps = {
-  // Gerçek Saate & Hava Durumuna Göre Atmosferik Işıklandırma Rengi
-  getLightingOverlay(time, weather = 'sunny', customHour = null) {
+  // Gerçek Saate & Hava Durumuna Göre Atmosferik Işıklandırma Rengi (5 Aşamalı + İç Mekan Koruması)
+  getLightingOverlay(time, weather = 'sunny', customHour = null, currentRoom = null) {
     let hour = customHour;
     if (hour === null || hour === undefined) {
       if (typeof Game !== 'undefined' && Game.currentHour !== undefined) {
@@ -16,23 +16,152 @@ const Maps = {
       }
     }
 
-    // Yağmurlu havada ortam daha buğulu ve hafif koyudur
-    const isRain = weather === 'rainy';
+    const room = currentRoom || (typeof Game !== 'undefined' ? Game.currentRoom : null);
+    const isIndoor = ['dorm', 'classroom', 'cafe'].includes(room);
+    const weatherType = (typeof weather === 'object' && weather) ? weather.type : weather;
+    // İç mekanlarda yağmur/sis filtresi uygulanmaz (isIndoor koruması)
+    const isRain = !isIndoor && weatherType === 'rainy';
 
-    // Şafak (06:00 - 08:30): Altın sarısı romantik sabah ışığı
-    if (hour >= 6 && hour < 8.5) {
-      return isRain ? 'rgba(180, 185, 200, 0.22)' : 'rgba(255, 215, 140, 0.12)';
+    // 1. Gündoğumu (05:30 - 08:00): Sıcak altın-şeftali
+    if (hour >= 5.5 && hour < 8.0) {
+      return isRain ? 'rgba(180, 185, 205, 0.20)' : 'rgba(255, 205, 150, 0.14)';
     }
-    // Gündüz (08:30 - 16:30): Doğal gün ışığı (yağmurda hafif gri-mavi serinlik)
-    if (hour >= 8.5 && hour < 16.5) {
-      return isRain ? 'rgba(70, 95, 130, 0.18)' : 'rgba(255, 255, 255, 0)';
+    // 2. Gündüz (08:00 - 11:30): Taze doğal gün ışığı
+    if (hour >= 8.0 && hour < 11.5) {
+      return isRain ? 'rgba(120, 140, 170, 0.16)' : 'rgba(255, 255, 255, 0)';
     }
-    // Gün Batımı (16:30 - 19:30): Sıcak kehribar & pembe tonlar (Stardew Gün Batımı)
-    if (hour >= 16.5 && hour < 19.5) {
-      return isRain ? 'rgba(150, 80, 90, 0.25)' : 'rgba(235, 120, 60, 0.18)';
+    // 3. Öğlen (11:30 - 15:30): Parlak tepe berraklığı
+    if (hour >= 11.5 && hour < 15.5) {
+      return isRain ? 'rgba(100, 125, 155, 0.18)' : 'rgba(255, 250, 230, 0.05)';
     }
-    // Gece (19:30 - 06:00): Derin huzurlu gece mavisi & ay ışığı
-    return isRain ? 'rgba(10, 14, 38, 0.52)' : 'rgba(18, 22, 54, 0.38)';
+    // 4. Günbatımı (15:30 - 19:30): Sıcak kehribar & kızıl altın
+    if (hour >= 15.5 && hour < 19.5) {
+      return isRain ? 'rgba(140, 75, 95, 0.24)' : 'rgba(235, 115, 55, 0.20)';
+    }
+    // 5. Gece (19:30 - 05:30): Derin huzurlu gece mavisi & ay ışığı
+    return isRain ? 'rgba(8, 12, 32, 0.52)' : 'rgba(16, 20, 50, 0.40)';
+  },
+
+  renderDynamicWindowView(ctx, wx, wy, w, h, time, customHour = null, weather = 'sunny') {
+    let hour = customHour;
+    if (hour === null || hour === undefined) {
+      if (typeof Game !== 'undefined' && Game.currentHour !== undefined) {
+        hour = Game.currentHour;
+      } else {
+        const d = new Date();
+        hour = d.getHours() + (d.getMinutes() / 60);
+      }
+    }
+
+    const curWeather = typeof weather === 'object' && weather ? weather.type : weather;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(wx, wy, w, h);
+    ctx.clip();
+
+    // 1. 5 Aşamalı Gökyüzü Degradesi
+    const grad = ctx.createLinearGradient(wx, wy, wx, wy + h);
+    if (hour >= 5.5 && hour < 8.0) {
+      grad.addColorStop(0, '#7eb6d9');
+      grad.addColorStop(0.5, '#fbc490');
+      grad.addColorStop(1, '#ff9e79');
+    } else if (hour >= 8.0 && hour < 11.5) {
+      grad.addColorStop(0, '#5fa8e0');
+      grad.addColorStop(1, '#a6dcef');
+    } else if (hour >= 11.5 && hour < 15.5) {
+      grad.addColorStop(0, '#4293d8');
+      grad.addColorStop(1, '#bfe9ff');
+    } else if (hour >= 15.5 && hour < 19.5) {
+      grad.addColorStop(0, '#4a2559');
+      grad.addColorStop(0.5, '#c75248');
+      grad.addColorStop(1, '#f99f48');
+    } else {
+      grad.addColorStop(0, '#0a0f24');
+      grad.addColorStop(1, '#162044');
+    }
+    ctx.fillStyle = grad;
+    ctx.fillRect(wx, wy, w, h);
+
+    // 2. Gök Cisimleri (Güneş, Ay, Yıldızlar)
+    const isNight = hour >= 19.5 || hour < 5.5;
+    if (isNight) {
+      ctx.fillStyle = '#fef08a';
+      const starSeeds = [[8, 10], [28, 6], [16, 22], [36, 18], [24, 32], [42, 30]];
+      starSeeds.forEach(([sx, sy]) => {
+        const px = wx + (sx % w);
+        const py = wy + (sy % h);
+        const twinkle = Math.sin(time * 0.003 + sx) > 0.2 ? 1 : 0.5;
+        ctx.globalAlpha = twinkle;
+        ctx.fillRect(px, py, 1.5, 1.5);
+      });
+      ctx.globalAlpha = 1.0;
+
+      const moonX = wx + w - 12;
+      const moonY = wy + 10;
+      ctx.fillStyle = '#fef9c3';
+      ctx.beginPath();
+      ctx.arc(moonX, moonY, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#162044';
+      ctx.beginPath();
+      ctx.arc(moonX - 2, moonY - 1, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    } else if (curWeather === 'sunny') {
+      const sunX = (hour >= 5.5 && hour < 8.0) ? wx + 12 : ((hour >= 15.5) ? wx + w - 12 : wx + w / 2);
+      const sunY = (hour >= 11.5 && hour < 15.5) ? wy + 8 : wy + 14;
+      ctx.fillStyle = 'rgba(255, 235, 140, 0.35)';
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#fffbeb';
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 3. Cam Üzeri Dinamik Hava Durumu Efektleri
+    if (curWeather === 'cloudy') {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+      const cloudOffset1 = (time * 0.008) % (w + 40) - 20;
+      const cloudOffset2 = (time * 0.005 + 25) % (w + 40) - 20;
+      ctx.fillRect(wx + cloudOffset1, wy + 8, 14, 5);
+      ctx.fillRect(wx + cloudOffset1 + 3, wy + 5, 8, 4);
+      ctx.fillRect(wx + cloudOffset2, wy + 18, 18, 6);
+      ctx.fillRect(wx + cloudOffset2 + 4, wy + 15, 10, 4);
+    } else if (curWeather === 'rainy') {
+      ctx.fillStyle = 'rgba(80, 100, 130, 0.30)';
+      ctx.fillRect(wx, wy, w, h);
+
+      ctx.fillStyle = 'rgba(200, 225, 255, 0.45)';
+      for (let r = 0; r < 5; r++) {
+        const rx = wx + ((r * 11 + time * 0.03) % w);
+        const ry = wy + ((time * 0.08 + r * 15) % h);
+        ctx.fillRect(rx, ry, 1, 5);
+      }
+
+      for (let d = 0; d < 4; d++) {
+        const dropSpeed = 8 + (d * 4);
+        const dropY = wy + ((time * 0.001 * dropSpeed + d * 13) % h);
+        const dropX = wx + 6 + (d * 10);
+        ctx.fillStyle = 'rgba(220, 240, 255, 0.40)';
+        ctx.fillRect(dropX, dropY - 3, 1, 3);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.70)';
+        ctx.fillRect(dropX, dropY, 1.5, 1.5);
+      }
+    } else if (curWeather === 'snowy') {
+      ctx.fillStyle = 'rgba(215, 225, 245, 0.25)';
+      ctx.fillRect(wx, wy, w, h);
+
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      for (let s = 0; s < 6; s++) {
+        const sfY = wy + ((time * 0.015 + s * 11) % h);
+        const sfX = wx + ((s * 9 + Math.sin(time * 0.002 + s * 2) * 5 + 50) % w);
+        ctx.fillRect(sfX, sfY, 1.5, 1.5);
+      }
+    }
+
+    ctx.restore();
   },
 
   // ========================================================
@@ -120,35 +249,34 @@ const Maps = {
         ctx.fillRect(x, 69, 2, 16);
       }
 
-      // 3. Arka Pencereler & Cama Vuran Yağmur İllüzyonu
+      // 3. Arka Pencereler (Dinamik Gökyüzü & Hava Görünümü)
+      const currentHour = (typeof Game !== 'undefined' && Game.currentHour !== undefined) ? Game.currentHour : 12;
+      const weather = (typeof Game !== 'undefined' && Game.weather) ? Game.weather : 'sunny';
+
       [36, 420].forEach(wx => {
         // Pencere ahşap kasası
         ctx.fillStyle = '#5c3214';
         ctx.fillRect(wx - 2, 10, 58, 54);
-        ctx.fillStyle = '#96c8e6';
-        ctx.fillRect(wx + 2, 14, 50, 46);
 
-        // Yağmur çizgileri camda
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-        const dropOffset = (time * 0.05) % 30;
-        ctx.fillRect(wx + 10, 16 + dropOffset, 1, 6);
-        ctx.fillRect(wx + 24, 24 + ((dropOffset * 1.3) % 28), 1, 5);
-        ctx.fillRect(wx + 38, 14 + ((dropOffset * 0.8) % 32), 1, 7);
+        // Dinamik Gökyüzü ve Hava Olayı
+        Maps.renderDynamicWindowView(ctx, wx + 2, 14, 50, 46, time, currentHour, weather);
 
-        // Pencere bölmeleri
+        // Pencere bölmeleri (Ahşap çıtalar)
         ctx.fillStyle = '#5c3214';
         ctx.fillRect(wx + 26, 14, 2, 46);
         ctx.fillRect(wx + 2, 36, 50, 2);
 
-        // Zemine vuran yumuşak gün ışığı konisi
-        ctx.fillStyle = 'rgba(255, 248, 220, 0.08)';
-        ctx.beginPath();
-        ctx.moveTo(wx + 2, 65);
-        ctx.lineTo(wx + 52, 65);
-        ctx.lineTo(wx + 90, 260);
-        ctx.lineTo(wx - 30, 260);
-        ctx.closePath();
-        ctx.fill();
+        // Zemine vuran yumuşak gün ışığı konisi (Gündüz saatlerinde)
+        if (currentHour >= 6 && currentHour < 18) {
+          ctx.fillStyle = 'rgba(255, 248, 220, 0.08)';
+          ctx.beginPath();
+          ctx.moveTo(wx + 2, 65);
+          ctx.lineTo(wx + 52, 65);
+          ctx.lineTo(wx + 90, 260);
+          ctx.lineTo(wx - 30, 260);
+          ctx.closePath();
+          ctx.fill();
+        }
       });
 
       // Sol Pencere Altı Sıcak Radyatör Kaloriferi
@@ -740,8 +868,8 @@ const Maps = {
     ],
 
     tables: [
-      { id: 'campus_bench_left', x: 110, y: 170, width: 64, height: 40, name: 'Ihlamur Ağacı Altı Kampüs Bankı' },
-      { id: 'campus_bench_right', x: 460, y: 210, width: 64, height: 40, name: 'Güneşli Kiraz Çiçeği Bankı' }
+      { id: 'campus_bench_left', x: 110, y: 170, width: 64, height: 40, name: 'Ihlamur Ağacı Altı Kampüs Bankı', occupied: true, occupiedBy: 'Kerem', disabled: true },
+      { id: 'campus_bench_right', x: 460, y: 210, width: 64, height: 40, name: 'Güneşli Kiraz Çiçeği Bankı', maxCapacity: 1 }
     ],
 
     npcs: [
@@ -863,7 +991,7 @@ const Maps = {
 
     doors: [
       {
-        x: 260, y: 0, width: 120, height: 60,
+        x: 285, y: 0, width: 70, height: 50,
         targetRoom: 'campus_path',
         spawnX: 320, spawnY: 270,
         label: '▲ Kampüs Çıkışı'
@@ -879,12 +1007,12 @@ const Maps = {
       { id: 'bed_sezen', owner: 'Sezen', x: 532, y: 120, width: 68, height: 80, name: 'Sezen\'in Yatağı 🌸' }
     ],
 
-    noteBoard: { x: 295, y: 18, width: 50, height: 36, label: 'Polaroid Anı Panosu' },
+    noteBoard: { x: 24, y: 70, width: 44, height: 38, label: 'Polaroid Anı Panosu' },
     jukebox: { x: 400, y: 44, width: 32, height: 32, label: 'Lofi Radyo' },
 
     colliders: [
-      { x: 0, y: 0, width: 260, height: 75 },
-      { x: 380, y: 0, width: 260, height: 75 },
+      { x: 0, y: 0, width: 285, height: 75 },
+      { x: 355, y: 0, width: 285, height: 75 },
       { x: 0, y: 375, width: 640, height: 25 },
       { x: 0, y: 0, width: 24, height: 400 },
       { x: 616, y: 0, width: 24, height: 400 },
@@ -898,7 +1026,11 @@ const Maps = {
       { x: 260, y: 245, width: 96, height: 26 }
     ],
 
-    render(ctx, time, unlockedDecors = []) {
+    render(ctx, time, unlockedDecors = [], players = null) {
+      const spritesCache = (typeof Sprites !== 'undefined' && Sprites.cache) ? Sprites.cache : {};
+      const currentHour = (typeof Game !== 'undefined' && Game.currentHour !== undefined) ? Game.currentHour : 12;
+      const weather = (typeof Game !== 'undefined' && Game.weather) ? Game.weather : 'sunny';
+
       // 1. Sıcak Meşe Parke Zemin (Plank Seams & Woodgrain)
       ctx.fillStyle = '#b87b3e';
       ctx.fillRect(0, 0, 640, 400);
@@ -920,24 +1052,13 @@ const Maps = {
       ctx.fillStyle = '#7a421b';
       ctx.fillRect(0, 63, 640, 12);
 
-      // 3. Yurt Pencereleri (Can ve Sezen taraflarında pencereler)
+      // 3. Yurt Pencereleri (Dinamik Gökyüzü & Hava Görünümü)
       [125, 460].forEach((wx, idx) => {
         ctx.fillStyle = '#4a250d';
         ctx.fillRect(wx - 2, 8, 54, 50);
-        ctx.fillStyle = '#9ec5e8';
-        ctx.fillRect(wx + 2, 12, 46, 42);
 
-        // Gece / Gündüz cam tonu
-        const currentHour = typeof Game !== 'undefined' ? Game.currentHour : 12;
-        if (currentHour < 6 || currentHour > 19) {
-          ctx.fillStyle = '#1e293b'; // Gece gökyüzü
-          ctx.fillRect(wx + 2, 12, 46, 42);
-          // Minik sarı yıldızlar
-          ctx.fillStyle = '#fef08a';
-          ctx.fillRect(wx + 10, 18, 2, 2);
-          ctx.fillRect(wx + 32, 24, 2, 2);
-          ctx.fillRect(wx + 22, 34, 1, 1);
-        }
+        // Dinamik Gökyüzü ve Hava Olayı
+        Maps.renderDynamicWindowView(ctx, wx + 2, 12, 46, 42, time, currentHour, weather);
 
         // Ahşap pencere çıtaları
         ctx.fillStyle = '#4a250d';
@@ -969,50 +1090,132 @@ const Maps = {
       ctx.fillRect(236, 230, 168, 4);
       ctx.fillRect(236, 285, 168, 4);
 
-      // 5. Eşyaların Çizimi
+      // 5. Ahşap Yurt Çıkış Kapısı (x: 285, y: 0) & Hasır Paspas (x: 292, y: 55)
+      // Kapı Kasası & Ahşap Kanat
+      ctx.fillStyle = '#381c0c';
+      ctx.fillRect(283, 0, 74, 56);
+      ctx.fillStyle = '#5c3214';
+      ctx.fillRect(285, 2, 70, 53);
+      ctx.fillStyle = '#7a421b';
+      ctx.fillRect(288, 5, 30, 22);
+      ctx.fillRect(322, 5, 30, 22);
+      ctx.fillRect(288, 30, 30, 22);
+      ctx.fillRect(322, 30, 30, 22);
+      // Pirinç Kapı Kolu
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(289, 28, 3, 7);
+      ctx.fillStyle = '#fef08a';
+      ctx.fillRect(290, 29, 2, 2);
+
+      // Doğal Hasır Kapı Paspası (Doormat at x: 292, y: 55, w: 56, h: 16)
+      ctx.fillStyle = '#4a2c11';
+      ctx.fillRect(291, 54, 58, 18);
+      ctx.fillStyle = '#c29b62';
+      ctx.fillRect(293, 56, 54, 14);
+      ctx.fillStyle = '#9c7844';
+      for (let my = 58; my < 68; my += 3) {
+        ctx.fillRect(295, my, 50, 1);
+      }
+      ctx.fillStyle = '#5c3e1e';
+      ctx.font = '7px Silkscreen, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('WELCOME', 320, 66);
+
+      // Kapı Üstü Çıkış Tabelası
+      ctx.fillStyle = '#261307';
+      ctx.fillRect(280, 0, 80, 16);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '8px Silkscreen, monospace';
+      ctx.fillText('▲ KAMPÜS ÇIKIŞI', 320, 11);
+
+      // 6. Eşyaların Çizimi
       // Gardıroplar
-      if (Sprites.cache['dorm_wardrobe']) {
-        ctx.drawImage(Sprites.cache['dorm_wardrobe'], 38, 36);
-        ctx.drawImage(Sprites.cache['dorm_wardrobe'], 560, 36);
+      if (spritesCache['dorm_wardrobe']) {
+        ctx.drawImage(spritesCache['dorm_wardrobe'], 38, 36);
+        ctx.drawImage(spritesCache['dorm_wardrobe'], 560, 36);
       }
 
       // Çay Köşesi Kitchenette & Mini Fridge
-      if (Sprites.cache['dorm_kitchenette']) {
-        ctx.drawImage(Sprites.cache['dorm_kitchenette'], 195, 38);
+      if (spritesCache['dorm_kitchenette']) {
+        ctx.drawImage(spritesCache['dorm_kitchenette'], 195, 38);
       }
-      if (Sprites.cache['dorm_fridge']) {
-        ctx.drawImage(Sprites.cache['dorm_fridge'], 355, 40);
-      }
-
-      // Anı Panosu & Jukebox
-      if (Sprites.cache['dorm_photoboard']) {
-        ctx.drawImage(Sprites.cache['dorm_photoboard'], 295, 18);
-      }
-      if (Sprites.cache['retro_jukebox']) {
-        ctx.drawImage(Sprites.cache['retro_jukebox'], 400, 44);
+      if (spritesCache['dorm_fridge']) {
+        ctx.drawImage(spritesCache['dorm_fridge'], 355, 40);
       }
 
-      // Yataklar (Can & Sezen)
-      if (Sprites.cache['bed_can']) {
-        ctx.drawImage(Sprites.cache['bed_can'], 40, 120);
+      // Anı Panosu (Sol Duvara Taşındı: x: 24, y: 70)
+      if (spritesCache['dorm_photoboard']) {
+        ctx.drawImage(spritesCache['dorm_photoboard'], 24, 70);
       }
-      if (Sprites.cache['bed_sezen']) {
-        ctx.drawImage(Sprites.cache['bed_sezen'], 532, 120);
+
+      // Jukebox
+      if (spritesCache['retro_jukebox']) {
+        ctx.drawImage(spritesCache['retro_jukebox'], 400, 44);
       }
 
       // Büyük Ortak Çalışma Masası
-      if (Sprites.cache['table_dorm_couple']) {
-        ctx.drawImage(Sprites.cache['table_dorm_couple'], 260, 235);
+      if (spritesCache['table_dorm_couple']) {
+        ctx.drawImage(spritesCache['table_dorm_couple'], 260, 235);
       }
 
-      // Kuzey Çıkış Kapısı & Tabela
-      ctx.fillStyle = '#4a250d';
-      ctx.fillRect(280, 0, 80, 24);
-      ctx.fillStyle = '#6b3e1f';
-      ctx.fillRect(284, 0, 72, 20);
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '8px Silkscreen, monospace';
-      ctx.fillText('▲ KAMPÜS ÇIKIŞI', 270, 15);
+      // 7. Katmanlı Yatak Çizimi (Base -> Sleeping Player Head -> Blanket -> Zzz)
+      const playersList = players || (typeof Network !== 'undefined' && Network.players ? Object.values(Network.players) : []);
+      const canPlayer = playersList.find(p => p.name === 'Can' && (p.room === 'dorm' || !p.room));
+      const sezenPlayer = playersList.find(p => p.name === 'Sezen' && (p.room === 'dorm' || !p.room));
+      const isCanSleeping = canPlayer?.isSleeping;
+      const isSezenSleeping = sezenPlayer?.isSleeping;
+
+      // Can'ın Yatağı
+      const bedCanBase = spritesCache['bed_can_base'] || spritesCache['bed_can'];
+      if (bedCanBase) {
+        ctx.drawImage(bedCanBase, 40, 120);
+      }
+      if (isCanSleeping) {
+        const breathBob = Math.sin(time * 0.003) * 0.6;
+        const canSleepingSprite = spritesCache['Can']?.['sleeping'] || spritesCache['Can']?.['down']?.[0];
+        if (canSleepingSprite) {
+          ctx.drawImage(canSleepingSprite, 62, 128 + breathBob);
+        }
+      }
+      const bedCanBlanket = spritesCache['bed_can_blanket'];
+      if (bedCanBlanket) {
+        ctx.drawImage(bedCanBlanket, 40, 120);
+      }
+      if (isCanSleeping) {
+        const zFloat = (time * 0.002) % 3;
+        const zAlpha = Math.max(0, 1 - (zFloat / 3));
+        ctx.save();
+        ctx.fillStyle = `rgba(180, 210, 255, ${zAlpha})`;
+        ctx.font = '10px Silkscreen, monospace';
+        ctx.fillText('Zzz..', 76 + (zFloat * 4), 118 - (zFloat * 12));
+        ctx.restore();
+      }
+
+      // Sezen'in Yatağı
+      const bedSezenBase = spritesCache['bed_sezen_base'] || spritesCache['bed_sezen'];
+      if (bedSezenBase) {
+        ctx.drawImage(bedSezenBase, 532, 120);
+      }
+      if (isSezenSleeping) {
+        const breathBob = Math.sin(time * 0.003) * 0.6;
+        const sezenSleepingSprite = spritesCache['Sezen']?.['sleeping'] || spritesCache['Sezen']?.['down']?.[0];
+        if (sezenSleepingSprite) {
+          ctx.drawImage(sezenSleepingSprite, 554, 128 + breathBob);
+        }
+      }
+      const bedSezenBlanket = spritesCache['bed_sezen_blanket'];
+      if (bedSezenBlanket) {
+        ctx.drawImage(bedSezenBlanket, 532, 120);
+      }
+      if (isSezenSleeping) {
+        const zFloat = (time * 0.002) % 3;
+        const zAlpha = Math.max(0, 1 - (zFloat / 3));
+        ctx.save();
+        ctx.fillStyle = `rgba(215, 195, 255, ${zAlpha})`;
+        ctx.font = '10px Silkscreen, monospace';
+        ctx.fillText('Zzz..', 568 + (zFloat * 4), 118 - (zFloat * 12));
+        ctx.restore();
+      }
     }
   }
 };
